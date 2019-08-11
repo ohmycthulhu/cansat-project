@@ -1,11 +1,4 @@
-#ifndef STRING_TYPE
-    #ifdef __GNUC__
-        #include <string.h>
-        #define STRING_TYPE std::string
-    #else
-        #define STRING_TYPE string
-    #endif
-#endif
+#include "common.hpp"
 
 class Packet {
 private:
@@ -31,4 +24,9 @@ public:
     static void resetId ();
 
     int getId() { return id; }
+
+    bool operator==(const Packet& p) { return id == p.id; }
+    bool operator!=(const Packet& p) { return id != p.id; }
+    bool operator<(const Packet& p) { return id < p.id; }
+    bool operator>(const Packet& p) { return id > p.id; }
 };

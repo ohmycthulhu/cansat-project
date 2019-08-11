@@ -1,3 +1,5 @@
+#ifndef __PACKET__
+#define __PACKET__
 #include "packet.hpp"
 #include <sstream>
 
@@ -27,7 +29,7 @@ int Packet::getNextId() {
 }
 
 STRING_TYPE Packet::toString() {
-#ifdef __GNUC__
+#if IS_NOT_CONTROLLER
     auto result = std::stringstream();
     result << id << "|" << temperature << "|" << pressure << "|" << humidity << "|" << voltage;
     return result.str();
@@ -35,3 +37,5 @@ STRING_TYPE Packet::toString() {
     return String(id) + "|" + String(temperature) + "|" + String(pressure) + "|" + String(humidity) + "|" + String(voltage);
 #endif
 }
+
+#endif

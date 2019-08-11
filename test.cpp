@@ -1,18 +1,26 @@
 #include <iostream>
-#include "include/packet.cpp"
 #include <stdlib.h>
+#include "include/packet.cpp"
+#include "include/sensors.cpp"
 
 using namespace std;
 
 namespace tests {
-    bool checkPackets();   
+    bool checkPackets();
+    bool checkSensors();
 }
 
 int main(int argc, char** argv) {
         cout << "Starting tests..." << endl;
         // Checking packets
         auto packetsState = tests::checkPackets();
+        
         cout << "Packets state: " << (packetsState ? "work" : "error") << endl;
+        // Checking sensors
+
+        auto sensorsState = tests::checkSensors();
+        
+        cout << "Sensors state: " << (sensorsState ? "work" : "error") << endl;
 
         return 0;
     }
@@ -32,5 +40,24 @@ bool tests::checkPackets() {
         }
     }
 
+    return true;
+}
+
+bool tests::checkSensors() {
+    using namespace sensors;
+    try {
+        Sensors::initialize();
+        Packet p1 = Sensors::getPacket();
+        Packet* p2 = Sensors::getLastPacket();
+        if (p1 != *p2) {
+            return false;
+        }
+        for (int i = 0; i < 10; i++) {
+            Packet temp = Sensors::getPacket();
+            cout << "Packet #" << i << " :" << temp.toString() << endl;
+        }
+    } catch(exception e) {
+        return false;
+    }
     return true;
 }
