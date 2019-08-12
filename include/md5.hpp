@@ -1,6 +1,10 @@
 #ifndef __MD5__
 #define __MD5__
 
+/*
+    This code was stollen from StackOverflow, so please don't change it
+ */
+
 #include <array>
 #include <iterator>
 #include <cstdint>

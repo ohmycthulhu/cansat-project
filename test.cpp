@@ -1,9 +1,11 @@
 #include <iostream>
 #include <stdlib.h>
+#include <ctime>
 #include "include/packet.cpp"
 #include "include/sensors.cpp"
 #include "include/md5.hpp"
 #include "include/commands.cpp"
+#include "include/xbeeinterface.cpp"
 
 using namespace std;
 
@@ -12,41 +14,53 @@ namespace tests {
     bool checkSensors();
     bool testHash();
     bool testCommands();
+    bool testXbee();
 }
 
 int main(int argc, char** argv) {
         cout << "Starting tests..." << endl;
-        
         cout << endl << "*****************************" << endl << endl;
          
         // Test hashing function
+        auto measureBegin = clock();
         auto hashState = tests::testHash();
-
+        auto measureEnd = clock();
         cout << "Hash state: " << (hashState ? "work" : "error") << endl;
-
+        cout << "Elapsed time: " << ((double) (measureEnd - measureBegin)) / CLOCKS_PER_SEC << endl;
         cout << endl << "*****************************" << endl << endl;
 
         // Checking packets
+        measureBegin = clock();
         auto packetsState = tests::checkPackets();
-        
+        measureEnd = clock();
         cout << "Packets state: " << (packetsState ? "work" : "error") << endl;
-
+        cout << "Elapsed time: " << ((double) (measureEnd - measureBegin)) / CLOCKS_PER_SEC << endl;
         cout << endl << "*****************************" << endl << endl;
 
         // Checking sensors
-
+        measureBegin = clock();
         auto sensorsState = tests::checkSensors();
-        
+        measureEnd = clock();
         cout << "Sensors state: " << (sensorsState ? "work" : "error") << endl;
-        
+        cout << "Elapsed time: " << ((double) (measureEnd - measureBegin)) / CLOCKS_PER_SEC << endl;
         cout << endl << "*****************************" << endl << endl;
 
         // Test commands
+        measureBegin = clock();
         auto commandsState = tests::testCommands();
-
+        measureEnd = clock();
         cout << "Commands state: " << (commandsState ? "work" : "error") << endl; 
-
+        cout << "Elapsed time: " << ((double) (measureEnd - measureBegin)) / CLOCKS_PER_SEC << endl;
         cout << endl << "*****************************" << endl << endl;
+
+        // Test Xbee
+        measureBegin = clock();
+        auto xbeeState = tests::testXbee();
+        measureEnd = clock();
+        cout << "Xbee state: " << (commandsState ? "work" : "error") << endl; 
+        cout << "Elapsed time: " << ((double) (measureEnd - measureBegin)) / CLOCKS_PER_SEC << endl;
+        cout << endl << "*****************************" << endl << endl;
+        
 
         return 0;
     }
@@ -141,6 +155,30 @@ bool tests::testCommands() {
         if (statuses[i] != result) {
             return false;
         }
+    }
+
+    return true;
+}
+
+bool tests::testXbee() {
+    xbee::XBeeInterface::initialize();
+    STRING_TYPE s[] = {
+        "First",
+        "Second",
+        "Fourth",
+        "Eighth",
+        "Sixteenth",
+        "Thirty second",
+        "Sixty fourth"
+    };
+
+    for (int i = 0; i < sizeof(s) / sizeof(STRING_TYPE); i++) {
+        xbee::XBeeInterface::send(s[i]);
+    }
+    
+    while (xbee::XBeeInterface::canSend()) {
+        cout << "Sending following command: " << endl << flush;
+        xbee::XBeeInterface::send();
     }
 
     return true;
