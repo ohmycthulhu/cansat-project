@@ -3,6 +3,7 @@
 #include "include/packet.cpp"
 #include "include/sensors.cpp"
 #include "include/md5.hpp"
+#include "include/commands.cpp"
 
 using namespace std;
 
@@ -10,13 +11,14 @@ namespace tests {
     bool checkPackets();
     bool checkSensors();
     bool testHash();
+    bool testCommands();
 }
 
 int main(int argc, char** argv) {
         cout << "Starting tests..." << endl;
         
         cout << endl << "*****************************" << endl << endl;
-        
+         
         // Test hashing function
         auto hashState = tests::testHash();
 
@@ -37,6 +39,13 @@ int main(int argc, char** argv) {
         
         cout << "Sensors state: " << (sensorsState ? "work" : "error") << endl;
         
+        cout << endl << "*****************************" << endl << endl;
+
+        // Test commands
+        auto commandsState = tests::testCommands();
+
+        cout << "Commands state: " << (commandsState ? "work" : "error") << endl; 
+
         cout << endl << "*****************************" << endl << endl;
 
         return 0;
@@ -98,6 +107,38 @@ bool tests::testHash() {
         hashResult = h.hex_digest<string>();
         cout << initialText << "|" << hashResult << endl;
         if (hashes[i] != hashResult) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool tests::testCommands() {
+    // TODO: Write tests to check commands
+    string messages[] =  {
+        "1|c4ca4238a0b923820dcc509a6f75849b",
+        "2|[doaspdash",
+        "1|dsadsadas[pk",
+        "flaslkjjkasn",
+        "1|1|[pwiqehq",
+        "12|c20ad4d76fe97759aa27a0c99bff6710"
+    };
+    commands::Statuses statuses[] = {
+        commands::Statuses::OK,
+        commands::Statuses::HASH_FAILED,
+        commands::Statuses::HASH_FAILED, 
+        commands::Statuses::HASH_FAILED, 
+        commands::Statuses::HASH_FAILED,  
+        commands::Statuses::NO_COMMAND
+    };
+    
+    commands::Statuses result;
+    for (int i = 0; i < sizeof(statuses) / sizeof(commands::Statuses); i++) {
+        result = commands::CommandsInterface::execute(messages[i]);
+        cout << "Result of executing ("<< messages[i] <<") is "
+            << (int)result << " while should be " << (int)statuses[i] << endl;
+        if (statuses[i] != result) {
             return false;
         }
     }

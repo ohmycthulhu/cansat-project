@@ -11,22 +11,22 @@ private:
     float humidity;
 
 public:
-    Packet (float temperature, float pressure, float voltage, float humidity);
+    Packet (const float temperature, const float pressure, const float voltage, const float humidity);
 
-    Packet (int id, float temperature, float pressure, float voltage, float humidity);
+    Packet (const int id, const float temperature, const float pressure, const float voltage, const float humidity);
 
     Packet (const Packet& p);
 
-    STRING_TYPE toString();
+    STRING_TYPE toString() const;
 
     static int getNextId();
 
     static void resetId ();
 
-    int getId() { return id; }
+    int getId() const { return id; }
 
-    bool operator==(const Packet& p) { return id == p.id; }
-    bool operator!=(const Packet& p) { return id != p.id; }
-    bool operator<(const Packet& p) { return id < p.id; }
-    bool operator>(const Packet& p) { return id > p.id; }
+    bool operator==(const Packet& p) const { return id == p.id; }
+    bool operator!=(const Packet& p) const { return id != p.id; }
+    bool operator<(const Packet& p) const { return id < p.id; }
+    bool operator>(const Packet& p) const { return id > p.id; }
 };

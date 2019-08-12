@@ -1,3 +1,6 @@
+#ifndef __MD5__
+#define __MD5__
+
 #include <array>
 #include <iterator>
 #include <cstdint>
@@ -276,3 +279,5 @@ const std::array<std::uint32_t, 64> md5::s_array_ = {
     4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,
     6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21
 };
+
+#endif
