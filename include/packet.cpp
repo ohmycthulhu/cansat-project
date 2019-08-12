@@ -32,10 +32,12 @@ STRING_TYPE Packet::toString() {
 #if IS_NOT_CONTROLLER
     auto result = std::stringstream();
     result << id << "|" << temperature << "|" << pressure << "|" << humidity << "|" << voltage;
-    return result.str();
+    auto s = result.str();
 #else
-    return String(id) + "|" + String(temperature) + "|" + String(pressure) + "|" + String(humidity) + "|" + String(voltage);
+    auto s = String(id) + "|" + String(temperature) + "|" + String(pressure) + "|" + String(humidity) + "|" + String(voltage);
 #endif
+    // Generate and concatenate hash
+    return s;
 }
 
 #endif
