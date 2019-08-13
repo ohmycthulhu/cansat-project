@@ -1,5 +1,6 @@
 #include "packet.cpp"
 #include "common.hpp"
+#include "kalman.hpp"
 
 namespace sensors {
     // Here goes sensors' pins
@@ -8,6 +9,7 @@ namespace sensors {
     class Sensors {
     private:
         static Packet* lastPacket;
+        static KalmanFilter<float> kalmanTemp, kalmanPress, kalmanHumidity, kalmanVoltage;
 
         static void setupSensors();
         static float getTemperature();

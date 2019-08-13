@@ -10,6 +10,8 @@
 namespace sensors {
 
     Packet* Sensors::lastPacket = nullptr;
+    KalmanFilter<float> Sensors::kalmanTemp, Sensors::kalmanPress;
+    KalmanFilter<float> Sensors::kalmanHumidity, Sensors::kalmanVoltage;
 
     float Sensors::getTemperature() {
     #if IS_CONTROLLER
@@ -64,7 +66,11 @@ namespace sensors {
     }
 
     Packet Sensors::getPacket() {
-        Packet packet = Packet(getTemperature(), getPressure(), getVoltage(), getHumidity());
+        Packet packet = Packet(
+            kalmanTemp.update(getTemperature()),
+            kalmanPress.update(getPressure()),
+            kalmanVoltage.update(getVoltage()),
+            kalmanHumidity.update(getHumidity()));
         if (lastPacket != nullptr) {
             delete lastPacket; 
         }
