@@ -1,8 +1,11 @@
 #ifndef __PACKET__
 #define __PACKET__
 #include "packet.hpp"
-#include <sstream>
 #include "md5.hpp"
+
+#if IS_NOT_CONTROLLER
+#include <sstream>
+#endif
 
 int Packet::nextId = 1;
 
@@ -21,8 +24,8 @@ Packet::Packet(const Packet& packet)
     voltage(packet.voltage), humidity(packet.humidity)
 {}
 
-void Packet::resetId() {
-    nextId = 1;
+void Packet::setID(const int& id = 1) {
+    nextId = id;
 }
 
 int Packet::getNextId() {
@@ -43,12 +46,13 @@ STRING_TYPE Packet::toString() const {
 #endif
 
     // Generate and concatenate hash
-    md5 hash;
-#ifdef IS_NOT_CONTROLLER
-    hash.update(s.begin(), s.end());
+#if IS_NOT_CONTROLLER
+    md5 hash(s.begin(), s.end());
     result << "|" << hash.hex_digest<std::string>();
     s = result.str();
 #else
+    md5 hash(s.c_str());
+    s += "|" + hash.digest();
     // TODO: Write hash calculation and concatenating for Arduino
 #endif
     return s;

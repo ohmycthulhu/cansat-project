@@ -8,8 +8,8 @@
 #endif
 
 namespace xbee {
-    std::queue<STRING_TYPE> XBeeInterface::sendQueue;
-    std::queue<STRING_TYPE> XBeeInterface::receivedCommands;
+    // QueueImplementation<STRING_TYPE> XBeeInterface::sendQueue;
+    // QueueImplementation<STRING_TYPE> XBeeInterface::receivedCommands;
 
     void XBeeInterface::setup() {
     #if IS_CONTROLLER
@@ -22,33 +22,28 @@ namespace xbee {
     }
 
     STRING_TYPE XBeeInterface::getCommand() {
-        auto result = receivedCommands.front();
-        receivedCommands.pop();
-        return result;
+    #if IS_CONTROLLER
+        // Read string from serial
+        return "";
+    #else
+        return "";
+    #endif
     }
     
     void XBeeInterface::send(const STRING_TYPE& msg) {
-        sendQueue.push(msg);
+        
+    #if IS_CONTROLLER
+        // Send message through xbee if it is controller
+        Serial.println(msg);
+    #else
+        std::cout << "Sending through xbee: " << msg << std::endl;
+    #endif
     }
 
     void XBeeInterface::listen() {
     #if IS_CONTROLLER
         // Listen for XBee.
         // Listenning should be done with this function as callback
-    #endif
-    }
-
-    void XBeeInterface::send() {
-        if (!canSend()) {
-            return;
-        }
-        STRING_TYPE s = sendQueue.front();
-        sendQueue.pop();
-
-    #if IS_CONTROLLER
-        // Send message through xbee if it is controller
-    #else
-        std::cout << "Sending through xbee: " << s << std::endl;
     #endif
     }
 }

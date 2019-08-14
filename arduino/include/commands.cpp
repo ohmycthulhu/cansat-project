@@ -42,7 +42,11 @@ namespace commands {
         md5 hashGenerator(body.begin(), body.end());
         return hashGenerator.hex_digest<STRING_TYPE>() == hash;
     #else
-
+        auto lastDelimiterIndex = s.lastIndexOf(delimiter);
+        auto hash = s.substring(lastDelimiterIndex + 1, s.length());
+        auto body = s.substring(0, lastDelimiterIndex);
+        md5 hashGenerator(body.c_str());
+        return hashGenerator.digest() == hash;
     #endif
     
     }
@@ -58,6 +62,7 @@ namespace commands {
         STRING_TYPE commandId = s.substr(0, firstDelimiterIndex);
         int i = atoi(commandId.c_str());
     #else
+        int i = s.substring(0, s.indexOf(delimiter)).toInt();
         // TODO: Write this part for Arduino
     #endif
         if (i & (int)Commands::DETACH) {

@@ -1,15 +1,13 @@
 #ifndef __KALMAN__
 #define __KALMAN__
 
-#include <type_traits>
-
 /*
     It is Kalman Filter implementation for 1 dimensional variable
     It will be used in order to prevent value jumps (e.g. 1 => 10)
 */
 
 // Type can be either float or double
-template<typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+template<typename T>
 class KalmanFilter {
 private:
     T value = 0;
