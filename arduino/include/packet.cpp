@@ -24,7 +24,7 @@ Packet::Packet(const Packet& packet)
     voltage(packet.voltage), humidity(packet.humidity)
 {}
 
-void Packet::setID(const int& id = 1) {
+void Packet::setID(const int& id) {
     nextId = id;
 }
 

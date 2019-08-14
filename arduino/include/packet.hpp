@@ -21,7 +21,7 @@ public:
 
     static int getNextId();
 
-    static void setID (const int&);
+    static void setID (const int& id = 1);
 
     int getId() const { return id; }
 

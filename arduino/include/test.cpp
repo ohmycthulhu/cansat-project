@@ -109,6 +109,7 @@ namespace test {
 
     bool checkSensors() {
         using namespace sensors;
+        // There is no try-catch in Arduino, so we hide this block for it
         #if IF_NOT_CONTROLLER
         try {
         #endif
@@ -122,11 +123,6 @@ namespace test {
                 Packet temp = Sensors::getPacket();
                 printInterface << "Packet #" << i << " :" << temp.toString() << endOfLine;
             }
-        #if IS_CONTROLLER
-            // free(p2);
-        #else
-            // delete p2;
-        #endif
         #if IF_NOT_CONTROLLER
         } catch(Exception p) {
             return false;
