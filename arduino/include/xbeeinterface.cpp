@@ -8,8 +8,6 @@
 #endif
 
 namespace xbee {
-    // QueueImplementation<STRING_TYPE> XBeeInterface::sendQueue;
-    // QueueImplementation<STRING_TYPE> XBeeInterface::receivedCommands;
 
     void XBeeInterface::setup() {
     #if IS_CONTROLLER

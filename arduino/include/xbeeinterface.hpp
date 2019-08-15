@@ -1,11 +1,8 @@
-#include "queue.hpp"
 #include "common.hpp"
 
 namespace xbee {
     class XBeeInterface {
     public:
-        // static QueueImplementation<STRING_TYPE> receivedCommands;
-        // static QueueImplementation<STRING_TYPE> sendQueue;
         static void setup(); 
         static void listen();
     public:

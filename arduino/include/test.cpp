@@ -1,5 +1,5 @@
 #ifndef __TESTS__
-#define __TESTS
+#define __TESTS__
 #include "test.hpp"
 #include "packet.cpp"
 #include "sensors.cpp"
@@ -35,16 +35,6 @@ namespace test {
         printInterface << "Memory change: " << (startMemory - currentMemory) << ". Memory left: " << currentMemory << endOfLine;
         printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
 
-        // Checking packets
-        currentMemory = getFreeMemory();
-        measureBegin = getTime();
-        auto packetsState = checkPackets();
-        measureEnd = getTime();
-        printInterface << "Packets state: " << (packetsState ? "work" : "error") << endOfLine;
-        printInterface << "Elapsed time: " << (measureEnd - measureBegin) << endOfLine;
-        printInterface << "Memory change: " << (currentMemory - getFreeMemory()) << ". Memory left: " << getFreeMemory() << endOfLine;
-        printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
-
         // Checking sensors
         currentMemory = getFreeMemory();
         measureBegin = getTime();
@@ -74,31 +64,24 @@ namespace test {
         printInterface << "Elapsed time: " << (measureEnd - measureBegin) << endOfLine;
         printInterface << "Memory change: " << (currentMemory - getFreeMemory()) << ". Memory left: " << getFreeMemory() << endOfLine;
         printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
-
-
-        // Test Kalman
-        currentMemory = getFreeMemory();
-        measureBegin = getTime();
-        auto kalmanState = testKalman();
-        measureEnd = getTime();
-        printInterface << "Kalman Filter state: " << (kalmanState ? "work" : "error") << endOfLine; 
-        printInterface << "Elapsed time: " << (measureEnd - measureBegin) << endOfLine;
-        printInterface << "Memory change: " << (currentMemory - getFreeMemory()) << ". Memory left: " << getFreeMemory() << endOfLine;
-        printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
         
-        return commandsState && hashState && kalmanState && packetsState && sensorsState && xbeeState;
+        return commandsState && hashState && xbeeState && sensorsState;
     }
 
+    /*
     // Functions for testings
     bool checkPackets() {
         double temp = randomNumber(30);
         double press = randomNumber(10500, 99500);
         double humidity = randomNumber(100);
         double voltage = randomNumber(5, 3);
+        double height = randomNumber(100, 10);
+        double time = getTime();
+        double speed = randomNumber(5, 3);
 
         // Check automatic id increase
         for (int index = 1; index < 100; index++) {
-            Packet p1 = Packet(temp, press, voltage, humidity);
+            Packet p1 = Packet(temp, press, voltage, humidity, height, speed, time);
             if (index != p1.getId()) {
                 return false;
             }
@@ -106,6 +89,7 @@ namespace test {
 
         return true;
     }
+    */
 
     bool checkSensors() {
         using namespace sensors;
@@ -116,10 +100,12 @@ namespace test {
             Sensors::initialize();
             Packet p1 = Sensors::getPacket();
             Packet* p2 = Sensors::getLastPacket();
+            
             if (p1 != *p2) {
                 return false;
             }
-            for (int i = 0; i < 10; i++) {
+            printInterface << "Size of packet is " << sizeof(*p2) << endOfLine;
+            for (int i = 0; i < 20; i++) {
                 Packet temp = Sensors::getPacket();
                 printInterface << "Packet #" << i << " :" << temp.toString() << endOfLine;
             }
@@ -133,27 +119,27 @@ namespace test {
 
     bool testHash() {
         STRING_TYPE strings[] = {
-            "First", "Second", "Third", "Fourth", "Fifth"
+            "First", "Second", "Third" , "Fourth"
         };
         STRING_TYPE hashes[] = {
             "7fb55ed0b7a30342ba6da306428cae04", "c22cf8376b1893dcfcef0649fe1a7d87",
-            "168909c0b6f1dfbd48f679d47059c1d6", "6e599f7a2a9186d391be4537f105be98",
-            "0abdfd715970bd0ef7d5574daa0e6d0b"
+            "168909c0b6f1dfbd48f679d47059c1d6" , "6e599f7a2a9186d391be4537f105be98"
         };
 
         STRING_TYPE hashResult;
         STRING_TYPE initialText;
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < sizeof(hashes) / sizeof(STRING_TYPE); i++) {
             initialText = strings[i];
         #if IS_CONTROLLER
-            md5 h(strings[i].c_str());
-            hashResult = h.digest();
+            // md5 h(strings[i].c_str());
+            // hashResult = h.digest();
+            hashResult = md5::digest(strings[i]);
         #else
             md5 h(strings[i].begin(), strings[i].end());
             hashResult = h.hex_digest<STRING_TYPE>();
         #endif
-            printInterface << initialText << "|" << hashResult << endOfLine;
+            printInterface << initialText << "|" << hashResult << "|" << hashes[i] << endOfLine;
             if (hashes[i] != hashResult) {
                 return false;
             }
@@ -213,6 +199,7 @@ namespace test {
         return true;
     }
 
+    /*
     bool testKalman() {
         KalmanFilter<double> filter;
 
@@ -230,6 +217,7 @@ namespace test {
         }
         return true;
     }
+    */
 
     #if IS_NOT_CONTROLLER
     long getFreeMemory() {
