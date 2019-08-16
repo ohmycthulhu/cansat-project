@@ -23,6 +23,8 @@
 #if IS_NOT_CONTROLLER
 #include <stdlib.h>
 #include <ctime>
+#else
+#include <SoftwareSerial.h>
 #endif
 
 inline float randomNumber(float max, float min = 0) {

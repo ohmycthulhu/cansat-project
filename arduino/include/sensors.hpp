@@ -1,11 +1,10 @@
-#if IS_CONTROLLER
-#include <Adafruit_BME280.h>
-#include <SoftwareSerial.h>
-#include <TinyGPS++.h>
-#endif
 #include "packet.cpp"
 #include "common.hpp"
 #include "kalman.hpp"
+#if IS_CONTROLLER
+#include <Adafruit_BME280.h>
+#include <TinyGPS++.h>
+#endif
 
 namespace sensors {
     // Here goes sensors' pins
@@ -35,13 +34,15 @@ namespace sensors {
             </Pins>
         */
 
-        constexpr static int listenTimeout = 2000; // millis
+        constexpr static long listenTimeout = 2000; // seconds
         constexpr static int packetIdAddress = 0x53;
         constexpr static int defaultPressureAddress = 0x63;
-        static Packet* lastPacket;
         static KalmanFilter<float> kalmanTemp, kalmanPress, kalmanHumidity, kalmanVoltage, kalmanHeight;
         // Default pressure for calculating height depending on pressure difference
         static float defaultPressure;
+        static float prevTime, prevHeight;
+        static long listenStartTime;
+        // static double lat, lng;
         static void setupSensors();
         static float getTemperature();
         static float getPressure();
@@ -57,8 +58,16 @@ namespace sensors {
         static void initialize();
         static void listen();
         static Packet getPacket();
-        static Packet* getLastPacket();
 
         static void reset();
+
+        static bool isListeningGPS() { return gpsSerial != nullptr && gpsSerial->listen(); }
+        static void listenGPS() {
+            listenStartTime = millis();
+            gpsSerial->listen();
+        }
+        static bool shouldInterrupt(const long& time) {
+            return isListeningGPS() && (time - listenStartTime > listenTimeout);
+        }
     };
 }

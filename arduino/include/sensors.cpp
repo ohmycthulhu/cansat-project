@@ -11,16 +11,17 @@
 
 namespace sensors {
 
-    Packet* Sensors::lastPacket = nullptr;
     KalmanFilter<float> Sensors::kalmanTemp, Sensors::kalmanPress, Sensors::kalmanHeight;
     KalmanFilter<float> Sensors::kalmanHumidity, Sensors::kalmanVoltage;
+    float Sensors::prevTime = 0, Sensors::prevHeight = 0;
+    // double Sensors::lat = 0, Sensors::lng = 0;
     float Sensors::defaultPressure = 0;
 #if IS_CONTROLLER
     Adafruit_BME280 * Sensors::bme = nullptr;
     SoftwareSerial * Sensors::gpsSerial = new SoftwareSerial(Sensors::gpsRX, Sensors::gpsTX);
     TinyGPSPlus Sensors::gpsParser;
 #endif
-
+    long Sensors::listenStartTime = 0;
 
     float Sensors::getTemperature() {
     #if IS_CONTROLLER
@@ -117,6 +118,7 @@ namespace sensors {
 
     double Sensors::getLongitude() {
     #if IS_CONTROLLER
+        // return lng;
         return gpsParser.location.lng();
     #else
         return 0;
@@ -125,6 +127,7 @@ namespace sensors {
 
     double Sensors::getLatitude() {
     #if IS_CONTROLLER
+        // return lat;
         return gpsParser.location.lat();
     #else
         return 0;
@@ -134,6 +137,7 @@ namespace sensors {
     STRING_TYPE Sensors::getGpsTime() {
     #if IS_CONTROLLER
     // Time format - HH:mm:ss
+        // return "";
         return String(gpsParser.time.hour()) + ":" 
             + String(gpsParser.time.minute()) + ":"
             + String(gpsParser.time.second());
@@ -143,22 +147,18 @@ namespace sensors {
     }
 
     float Sensors::getSpeed(const float& height) {
-        if (lastPacket == nullptr) {
+        if (prevTime == 0 || prevHeight == 0) {
             return 0;
         }
-        float dT = getTime() - lastPacket->getTime();
-        return abs(dT) > 1e-3 ? (height - lastPacket->getHeight())/dT : 0;
+        float dT = getTime() - prevTime;
+        return abs(dT) > 1e-3 ? (height - prevHeight)/dT : 0;
     }
 
     void Sensors::listen() {
     #if IS_CONTROLLER
-        auto startTime = getTime();
-        gpsSerial->listen();
-        while (getTime() - startTime < listenTimeout) {
         // Listen for GPS.
-            while (gpsSerial->available()) {
-                gpsParser.encode(gpsSerial->read());
-            }
+        while (gpsSerial->available()) {
+            gpsParser.encode(gpsSerial->read());
         }
     #endif
     }
@@ -184,18 +184,12 @@ namespace sensors {
             getLongitude(),
             getGpsTime()
         );
-        if (lastPacket != nullptr) {
-            *lastPacket = Packet(packet);
-        } else {
-            lastPacket = new Packet(packet);
-        }
+        prevTime = packet.getTime();
+        prevHeight = height;
         EEPROM.write(packetIdAddress, packet.getId());
         return packet;
     }
 
-    Packet* Sensors::getLastPacket() {
-        return lastPacket;
-    }
 }
 
 #endif

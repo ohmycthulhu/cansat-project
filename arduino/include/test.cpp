@@ -193,7 +193,7 @@ namespace test {
         };
 
         for (int i = 0; i < sizeof(s) / sizeof(STRING_TYPE); i++) {
-            xbee::XBeeInterface::send(s[i]);
+            xbee::XBeeInterface::send(s[i], xbee::MessageType::TELEMETRY);
         }
 
         return true;

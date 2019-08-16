@@ -59,16 +59,6 @@ STRING_TYPE Packet::toString() const {
             + String(time);
 #endif
 
-    // Generate and concatenate hash
-#if IS_NOT_CONTROLLER
-    md5 hash(s.begin(), s.end());
-    result << "|" << hash.hex_digest<std::string>();
-    s = result.str();
-#else
-    md5 hash(s.c_str());
-    s += "|" + hash.digest();
-    // TODO: Write hash calculation and concatenating for Arduino
-#endif
     return s;
 }
 

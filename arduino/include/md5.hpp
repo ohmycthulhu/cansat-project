@@ -4,35 +4,7 @@
 /*
     This code was stollen from StackOverflow, so please don't change it
  */
-#if IS_CONTROLLER
-
-#include <MD5.h>
-
-class md5 {
-    unsigned char* hash;
-public:
-    md5 (STRING_TYPE s): hash(MD5::make_hash(const_cast<char*>(s.c_str()))) {}
-    ~md5() {
-        delete [] hash;
-    }
-    STRING_TYPE digest() {
-        char* r = MD5::make_digest(hash, 16);
-        STRING_TYPE result = STRING_TYPE(r);
-        free(r);
-        return result;
-    }
-
-    static STRING_TYPE digest(STRING_TYPE s) {
-        char* hash = MD5::make_hash(s.c_str());
-        char* r = MD5::make_digest(hash, 16);
-        free(hash);
-        STRING_TYPE result = r;
-        free(r);
-        return result;
-    }
-};
-
-#else
+#if IS_NOT_CONTROLLER
 
 #include <array>
 #include <iterator>

@@ -6,6 +6,7 @@
 #include <iostream>
 #else
 #include <EEPROM.h>
+#include <MD5.h>
 #endif
 
 namespace commands {
@@ -47,8 +48,14 @@ namespace commands {
         auto lastDelimiterIndex = s.lastIndexOf(delimiter);
         auto hash = s.substring(lastDelimiterIndex + 1, s.length());
         auto body = s.substring(0, lastDelimiterIndex);
-        md5 hashGenerator(body.c_str());
-        return hashGenerator.digest() == hash;
+        
+        unsigned char* h_c = MD5::make_hash(const_cast<char*>(body.c_str()));
+        char* r = MD5::make_digest(h_c, 16);
+        free(h_c);
+        STRING_TYPE h = r;
+        free(r);
+
+        return h == hash;
     #endif
     
     }
