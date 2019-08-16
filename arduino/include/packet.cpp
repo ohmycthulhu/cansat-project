@@ -39,23 +39,23 @@ int Packet::getNextId() {
 STRING_TYPE Packet::toString() const {
 #if IS_NOT_CONTROLLER
     auto result = std::stringstream();
-    result  << id << "|"
-            << temperature << "|"
-            << pressure << "|"
-            << humidity << "|"
-            << voltage << "|"
-            << height << "|"
-            << speed << "|"
+    result  << id << ","
+            << temperature << ","
+            << pressure << ","
+            << humidity << ","
+            << voltage << ","
+            << height << ","
+            << speed << ","
             << time;
     auto s = result.str();
 #else
-    auto s = String(id) + "|"
-            + String(temperature) + "|"
-            + String(pressure) + "|"
-            + String(humidity) + "|"
-            + String(voltage) + "|"
-            + String(height) + "|"
-            + String(speed) + "|"
+    auto s = String(id) + ","
+            + String(temperature) + ","
+            + String(pressure) + ","
+            + String(humidity) + ","
+            + String(voltage) + ","
+            + String(height) + ","
+            + String(speed) + ","
             + String(time);
 #endif
 

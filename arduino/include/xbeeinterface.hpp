@@ -15,6 +15,8 @@ namespace xbee {
         constexpr static int xbeeRX = 6, xbeeTX = 7;
         constexpr static long listenTimeout = 1500; // micros
         static long listenStartTime;
+        static STRING_TYPE lastCommand;
+        static bool canUseCommand;
     #if IS_CONTROLLER
         static SoftwareSerial * xbeeSerial;
     #endif
@@ -33,6 +35,9 @@ namespace xbee {
         static bool shouldInterrupt(const long& time) {
             return isListeningXBee() && (time - listenStartTime > listenTimeout);
         }
+
+        static bool isThereCommand() { return canUseCommand; }
+        static STRING_TYPE getCommand() { canUseCommand = false; return lastCommand; }
     };
 
 }

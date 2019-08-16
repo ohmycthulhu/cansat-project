@@ -23,6 +23,8 @@ namespace sensors {
 #endif
     long Sensors::listenStartTime = 0;
 
+    bool Sensors::isPowered = false, Sensors::isRecording = false;
+
     float Sensors::getTemperature() {
     #if IS_CONTROLLER
         /*
@@ -94,6 +96,8 @@ namespace sensors {
         if (gpsSerial != nullptr) {
             gpsSerial->begin(9600);
         }
+        pinMode(cameraMode, OUTPUT);
+        pinMode(cameraPower, OUTPUT);
         // test::printInterface << "BME status is " << status << test::endOfLine;
     #endif
     }
@@ -106,6 +110,9 @@ namespace sensors {
         }
         Packet::setID(id);
         EEPROM.get(defaultPressureAddress, defaultPressure);
+        int cameraState = EEPROM.read(cameraStateAddress);
+        isPowered = cameraState > 0;
+        isRecording = cameraState > 1;
     }
 
     float Sensors::getTime() {
@@ -168,6 +175,46 @@ namespace sensors {
         EEPROM.write(packetIdAddress, id);
         Packet::setID(id);
         defaultPressure = 0;
+    }
+
+    void Sensors::startCamera(const bool force) {
+        if (force || !isPowered) {
+            isPowered = true;
+            isRecording = false;
+            // Turning on camera
+            digitalWrite(cameraPower, HIGH);
+            delay(3000);
+            digitalWrite(cameraPower, LOW);
+            delay(700);
+            // Toggling through 2 modes
+            digitalWrite(cameraMode, HIGH);
+            delay(700);
+            digitalWrite(cameraMode, LOW);
+            delay(700);
+            digitalWrite(cameraMode, HIGH);
+            delay(700);
+            digitalWrite(cameraMode, LOW);
+            delay(700);
+            EEPROM.write(cameraStateAddress, 1); // 1 = camera is powered and don't record
+        }
+    }
+    void Sensors::startRecording() {
+        if (isPowered && !isRecording) {
+            // Power for .7 seconds
+            digitalWrite(cameraPower, HIGH);
+            delay(700);
+            digitalWrite(cameraPower, LOW);
+            EEPROM.write(cameraStateAddress, 2); // 2 = camera is powered and records
+        }
+    }
+    void Sensors::stopRecording() {
+        if (isPowered && isRecording) {
+            // Power for .7 seconds
+            digitalWrite(cameraPower, HIGH);
+            delay(700);
+            digitalWrite(cameraPower, LOW);
+            EEPROM.write(cameraStateAddress, 1); // 1 = camera is powered and doesn't record
+        }
     }
 
     Packet Sensors::getPacket() {

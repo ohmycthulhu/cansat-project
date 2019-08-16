@@ -10,14 +10,20 @@
 #endif
 
 namespace commands {
-    Statuses CommandsInterface::execute(const STRING_TYPE& s) {
+    Statuses CommandsInterface::execute(const STRING_TYPE& s, Commands * executedCommand) {
         if (!isHashValid(s)) {
             return Statuses::HASH_FAILED;
         }
-        Commands c = extractCommand(s);
-        return execute(c);
+        auto command = extractCommand(s);
+        if (executedCommand != nullptr) {
+            *executedCommand = command;
+        }
+        return execute(command);
     }
-    Statuses CommandsInterface::execute(const Packet& s) {
+    Statuses CommandsInterface::execute(const Packet& s, Commands * executedCommand) {
+        if (executedCommand != nullptr) {
+            *executedCommand = Commands::UNDEFINED;
+        }
         return Statuses::NO_COMMAND; // TODO: Write conditions for commands
     }
     Statuses CommandsInterface::execute(const Commands& state) {
@@ -25,11 +31,23 @@ namespace commands {
         {
         case Commands::RESET:
             reset();
-            return Statuses::OK;
-
+            break;
+        case Commands::FORCE_START_CAMERA:
+            sensors::Sensors::startCamera(true);
+            break;
+        case Commands::START_CAMERA:
+            sensors::Sensors::startCamera();
+            break;
+        case Commands::START_RECORDING:
+            sensors::Sensors::startRecording();
+            break;
+        case Commands::STOP_RECORDING:
+            sensors::Sensors::stopRecording();
+            break;
         default:
             return Statuses::NO_COMMAND;
         }
+        return Statuses::OK;
     }
     bool CommandsInterface::isHashValid(const STRING_TYPE& s) {
     /*
@@ -73,8 +91,19 @@ namespace commands {
     #else
         int i = s.substring(0, s.indexOf(delimiter)).toInt();
     #endif
-        if (i & (int)Commands::RESET) {
-            return Commands::RESET;
+        switch(i) {
+            case (int)Commands::RESET:
+                return Commands::RESET;
+            case (int)Commands::START_CAMERA:
+                return Commands::START_CAMERA;
+            case (int)Commands::START_RECORDING:
+                return Commands::START_RECORDING;
+            case (int)Commands::STOP_RECORDING:
+                return Commands::STOP_RECORDING;
+            case (int)Commands::FORCE_START_CAMERA:
+                return Commands::FORCE_START_CAMERA;
+            default:
+                return Commands::UNDEFINED;
         }
         return Commands::UNDEFINED;
     }

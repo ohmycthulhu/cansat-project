@@ -14,8 +14,12 @@ enum class Statuses {
 };
 
 enum class Commands: int {
-    RESET = 0b01,
-    UNDEFINED = 0b00
+    RESET = 1, // 1
+    START_CAMERA, // 2
+    START_RECORDING, // 3
+    STOP_RECORDING, // 4
+    FORCE_START_CAMERA, // 5
+    UNDEFINED = 0
 };
 
 class CommandsInterface {
@@ -27,8 +31,9 @@ private:
     static Commands extractCommand (const STRING_TYPE& s);
     static Statuses execute(const Commands& command);
 public:
-    static Statuses execute(const STRING_TYPE& s);
-    static Statuses execute (const Packet& state);
+    // First operand will be used for defining the right command, the second for returning executed command
+    static Statuses execute(const STRING_TYPE& s, Commands * executedCommand = nullptr);
+    static Statuses execute (const Packet& state, Commands * executedCommand = nullptr);
     
 }; 
 

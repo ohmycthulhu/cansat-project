@@ -16,6 +16,8 @@ namespace xbee {
     SoftwareSerial * XBeeInterface::xbeeSerial = new SoftwareSerial(XBeeInterface::xbeeRX, XBeeInterface::xbeeTX);
 #endif
     long XBeeInterface::listenStartTime = 0;
+    bool XBeeInterface::canUseCommand = false;
+    STRING_TYPE XBeeInterface::lastCommand = "";
     void XBeeInterface::setup() {
     #if IS_CONTROLLER
         if (xbeeSerial != nullptr) {
@@ -58,8 +60,8 @@ namespace xbee {
                 // Action on command end
                 // TODO: Change this to command handling
                 if (msg != "") {
-                    auto status = commands::CommandsInterface::execute(msg);
-                    send(String((int)status), MessageType::COMMAND_REPORT);
+                    lastCommand = msg;
+                    canUseCommand = true;
                     msg = "";
                 }
             } else {

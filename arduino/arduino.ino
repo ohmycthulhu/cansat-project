@@ -20,15 +20,25 @@ void listenSerials() {
 }
 
 void makeOneLifecycle () {
+  using namespace commands;
+  using namespace xbee;
+  using namespace sensors;
   // Read data from sensors
   Packet p = sensors::Sensors::getPacket();
   // Pass packet to commands
-   auto commandStatus = commands::CommandsInterface::execute(p);
-  if (commandStatus != commands::Statuses::NO_COMMAND) {
-    xbee::XBeeInterface::send(String((int)commandStatus), xbee::MessageType::COMMAND_REPORT);
+  Commands executedCommand;
+  auto commandStatus = CommandsInterface::execute(p, &executedCommand);
+  if (commandStatus != Statuses::NO_COMMAND) {
+    XBeeInterface::send(String((int)executedCommand) + "," + String((int)commandStatus), xbee::MessageType::COMMAND_REPORT);
+  }
+  // Check xbee for command
+  if (XBeeInterface::isThereCommand()) {
+    auto command = xbee::XBeeInterface::getCommand();
+    auto status = CommandsInterface::execute(command, &executedCommand);
+    XBeeInterface::send(String((int)executedCommand) + "," + String((int)status), MessageType::COMMAND_REPORT);
   }
   // Send packet
-  xbee::XBeeInterface::send(p.toString(), xbee::MessageType::TELEMETRY);
+  XBeeInterface::send(p.toString(), xbee::MessageType::TELEMETRY);
 }
 void setup() {
   Serial.begin(9600);

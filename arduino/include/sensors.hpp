@@ -28,8 +28,8 @@ namespace sensors {
         /*
             <Pins>
         */
-        const static int gpsTX = 4;
-        const static int gpsRX = 5;
+        constexpr static int gpsTX = 4, gpsRX = 5;
+        constexpr static int cameraMode = 2, cameraPower = 8;
        /*
             </Pins>
         */
@@ -37,12 +37,15 @@ namespace sensors {
         constexpr static long listenTimeout = 2000; // seconds
         constexpr static int packetIdAddress = 0x53;
         constexpr static int defaultPressureAddress = 0x63;
+        constexpr static int cameraStateAddress = 0x83;
         static KalmanFilter<float> kalmanTemp, kalmanPress, kalmanHumidity, kalmanVoltage, kalmanHeight;
         // Default pressure for calculating height depending on pressure difference
         static float defaultPressure;
         static float prevTime, prevHeight;
         static long listenStartTime;
-        // static double lat, lng;
+        // Camera information
+        static bool isRecording;
+        static bool isPowered;
         static void setupSensors();
         static float getTemperature();
         static float getPressure();
@@ -69,5 +72,9 @@ namespace sensors {
         static bool shouldInterrupt(const long& time) {
             return isListeningGPS() && (time - listenStartTime > listenTimeout);
         }
+
+        static void startCamera (const bool force = false);
+        static void startRecording ();
+        static void stopRecording ();
     };
 }
