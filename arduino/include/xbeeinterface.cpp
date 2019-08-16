@@ -30,7 +30,7 @@ namespace xbee {
         
     #if IS_CONTROLLER
         // Send message through xbee if it is controller
-        Serial.println(msg);
+        xbeeSerial->println(msg);
     #else
         std::cout << "Sending through xbee: " << msg << std::endl;
     #endif
@@ -46,6 +46,7 @@ namespace xbee {
                 char c = xbeeSerial->read();
                 if (c == '\n') {
                     // Action on command end
+                    // TODO: Change this to command handling
                     test::printInterface << "Got command: " << msg << test::endOfLine;
                     msg = "";
                 } else {
@@ -54,7 +55,6 @@ namespace xbee {
             }
         }
         // Listen for XBee.
-        // Listenning should be done with this function as callback
     #endif
     }
 }
