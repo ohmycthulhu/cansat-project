@@ -14,14 +14,14 @@ enum class Statuses {
 };
 
 enum class Commands: int {
-    DETACH = 0b01,
+    RESET = 0b01,
     UNDEFINED = 0b00
 };
 
 class CommandsInterface {
 private:
     const static char delimiter = '|';
-    static void detach();
+    static void reset();
 
     static bool isHashValid(const STRING_TYPE& s);
     static Commands extractCommand (const STRING_TYPE& s);

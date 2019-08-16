@@ -1,5 +1,7 @@
 #if IS_CONTROLLER
 #include <Adafruit_BME280.h>
+#include <SoftwareSerial.h>
+#include <TinyGPS++.h>
 #endif
 #include "packet.cpp"
 #include "common.hpp"
@@ -17,11 +19,25 @@ namespace sensors {
     #if IS_CONTROLLER
         // BME sensor for measuring temperature, pressure, height and humidity
         static Adafruit_BME280* bme;
+        static SoftwareSerial * gpsSerial;
+        static TinyGPSPlus gpsParser;
     #endif
        /*
             </Sensors>
        */
-        
+
+        /*
+            <Pins>
+        */
+        const static int gpsTX = 4;
+        const static int gpsRX = 5;
+       /*
+            </Pins>
+        */
+
+        constexpr static int listenTimeout = 2000; // millis
+        constexpr static int packetIdAddress = 0x53;
+        constexpr static int defaultPressureAddress = 0x63;
         static Packet* lastPacket;
         static KalmanFilter<float> kalmanTemp, kalmanPress, kalmanHumidity, kalmanVoltage, kalmanHeight;
         // Default pressure for calculating height depending on pressure difference
@@ -33,10 +49,16 @@ namespace sensors {
         static float getHeight();
         static float getVoltage();
         static float getTime();
+        static double getLongitude();
+        static double getLatitude();
+        static STRING_TYPE getGpsTime();
         static float getSpeed(const float& height);
     public:
         static void initialize();
+        static void listen();
         static Packet getPacket();
         static Packet* getLastPacket();
+
+        static void reset();
     };
 }

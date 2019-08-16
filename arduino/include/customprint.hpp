@@ -9,7 +9,7 @@
 class CustomPrint {
 public:
     template<typename T>
-    const CustomPrint& operator<<(const T& value) const {
+    inline const CustomPrint& operator<<(const T& value) const {
     #if IS_CONTROLLER
         Serial.print(value);
     // Print for controller

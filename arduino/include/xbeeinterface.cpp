@@ -9,8 +9,15 @@
 
 namespace xbee {
 
+#if IS_CONTROLLER
+    SoftwareSerial * XBeeInterface::xbeeSerial = new SoftwareSerial(XBeeInterface::xbeeRX, XBeeInterface::xbeeTX);
+#endif
+
     void XBeeInterface::setup() {
     #if IS_CONTROLLER
+        if (xbeeSerial != nullptr) {
+            xbeeSerial->begin(9600);
+        }
         // TODO: Write setuping thread for listenning commands
     #endif
     }
@@ -19,15 +26,6 @@ namespace xbee {
         setup();
     }
 
-    STRING_TYPE XBeeInterface::getCommand() {
-    #if IS_CONTROLLER
-        // Read string from serial
-        return "";
-    #else
-        return "";
-    #endif
-    }
-    
     void XBeeInterface::send(const STRING_TYPE& msg) {
         
     #if IS_CONTROLLER
@@ -40,6 +38,21 @@ namespace xbee {
 
     void XBeeInterface::listen() {
     #if IS_CONTROLLER
+        auto startTime = getTime();
+        xbeeSerial->listen();
+        STRING_TYPE msg = "";
+        while (getTime() - startTime < listenTimeout) {
+            while (xbeeSerial->available()) {
+                char c = xbeeSerial->read();
+                if (c == '\n') {
+                    // Action on command end
+                    test::printInterface << "Got command: " << msg << test::endOfLine;
+                    msg = "";
+                } else {
+                    msg += c;
+                }
+            }
+        }
         // Listen for XBee.
         // Listenning should be done with this function as callback
     #endif

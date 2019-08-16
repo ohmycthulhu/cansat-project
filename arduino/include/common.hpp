@@ -25,7 +25,7 @@
 #include <ctime>
 #endif
 
-float randomNumber(float max, float min = 0) {
+inline float randomNumber(float max, float min = 0) {
 #if IS_CONTROLLER
     return random(min * 100, max * 100) / 100.0f;
 #else
@@ -33,7 +33,7 @@ float randomNumber(float max, float min = 0) {
 #endif
 }
 
-unsigned long getTime() {
+inline unsigned long getTime() {
 #if IS_CONTROLLER
     return micros();
 #else

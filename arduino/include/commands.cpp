@@ -4,6 +4,8 @@
 #include "md5.hpp"
 #if IS_NOT_CONTROLLER
 #include <iostream>
+#else
+#include <EEPROM.h>
 #endif
 
 namespace commands {
@@ -20,8 +22,8 @@ namespace commands {
     Statuses CommandsInterface::execute(const Commands& state) {
         switch (state)
         {
-        case Commands::DETACH:
-            detach();
+        case Commands::RESET:
+            reset();
             return Statuses::OK;
 
         default:
@@ -63,19 +65,18 @@ namespace commands {
         int i = atoi(commandId.c_str());
     #else
         int i = s.substring(0, s.indexOf(delimiter)).toInt();
-        // TODO: Write this part for Arduino
     #endif
-        if (i & (int)Commands::DETACH) {
-            return Commands::DETACH;
+        if (i & (int)Commands::RESET) {
+            return Commands::RESET;
         }
         return Commands::UNDEFINED;
     }
 
-    void CommandsInterface::detach() {
+    void CommandsInterface::reset() {
     #if IS_CONTROLLER
-        // TODO: Write here actions for detaching
+        sensors::Sensors::reset();
     #else
-        std::cout << "Detached" << std::endl;
+        std::cout << "Reseting" << std::endl;
     #endif
     }
 

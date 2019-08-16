@@ -12,13 +12,18 @@ private:
     float height;
     float speed;
     float time;
+    double latitude;
+    double longitude;
+    STRING_TYPE gpsTime;
 
 public:
     Packet (const float temperature, const float pressure, const float voltage,
-            const float humidity, const float height, const float speed, const float time);
+            const float humidity, const float height, const float speed, const float time,
+            const double latitude, const double longitude, STRING_TYPE gpsTime);
 
     Packet (const int id, const float temperature, const float pressure, const float voltage,
-            const float humidity, const float height, const float speed, const float time);
+            const float humidity, const float height, const float speed, const float time,
+            const double latitude, const double longitude, STRING_TYPE gpsTime);
 
     Packet (const Packet& p);
 
@@ -32,8 +37,4 @@ public:
     float getTime() const { return time; }
     int getId() const { return id; }
 
-    bool operator==(const Packet& p) const { return id == p.id; }
-    bool operator!=(const Packet& p) const { return id != p.id; }
-    bool operator<(const Packet& p) const { return id < p.id; }
-    bool operator>(const Packet& p) const { return id > p.id; }
 };

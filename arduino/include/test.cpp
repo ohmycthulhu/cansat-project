@@ -25,6 +25,7 @@ namespace test {
         
         long startMemory = getFreeMemory();
         printInterface << "Initial free memory: " << startMemory << endOfLine;
+        /*
         // Test hashing function
         auto measureBegin = getTime();
         auto hashState = testHash();
@@ -34,17 +35,19 @@ namespace test {
         printInterface << "Elapsed time: " << (measureEnd - measureBegin) << endOfLine;
         printInterface << "Memory change: " << (startMemory - currentMemory) << ". Memory left: " << currentMemory << endOfLine;
         printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
-
+        */
+  
         // Checking sensors
-        currentMemory = getFreeMemory();
-        measureBegin = getTime();
+        auto currentMemory = getFreeMemory();
+        auto measureBegin = getTime();
         auto sensorsState = checkSensors();
-        measureEnd = getTime();
+        auto measureEnd = getTime();
         printInterface << "Sensors state: " << (sensorsState ? "work" : "error") << endOfLine;
         printInterface << "Elapsed time: " << (measureEnd - measureBegin) << endOfLine;
         printInterface << "Memory change: " << (currentMemory - getFreeMemory()) << ". Memory left: " << getFreeMemory() << endOfLine;
         printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
 
+/*
         // Test commands
         currentMemory = getFreeMemory();
         measureBegin = getTime();
@@ -54,8 +57,9 @@ namespace test {
         printInterface << "Elapsed time: " << (measureEnd - measureBegin) << endOfLine;
         printInterface << "Memory change: " << (currentMemory - getFreeMemory()) << ". Memory left: " << getFreeMemory() << endOfLine;
         printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
-
+*/
         // Test Xbee
+    /*
         currentMemory = getFreeMemory();
         measureBegin = getTime();
         auto xbeeState = testXbee();
@@ -64,8 +68,11 @@ namespace test {
         printInterface << "Elapsed time: " << (measureEnd - measureBegin) << endOfLine;
         printInterface << "Memory change: " << (currentMemory - getFreeMemory()) << ". Memory left: " << getFreeMemory() << endOfLine;
         printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
-        
-        return commandsState && hashState && xbeeState && sensorsState;
+    */
+        xbee::XBeeInterface::listen();
+        sensors::Sensors::listen();
+
+        return true;
     }
 
     /*
@@ -92,21 +99,14 @@ namespace test {
     */
 
     bool checkSensors() {
-        using namespace sensors;
         // There is no try-catch in Arduino, so we hide this block for it
         #if IF_NOT_CONTROLLER
         try {
         #endif
-            Sensors::initialize();
-            Packet p1 = Sensors::getPacket();
-            Packet* p2 = Sensors::getLastPacket();
+            sensors::Sensors::initialize();
             
-            if (p1 != *p2) {
-                return false;
-            }
-            printInterface << "Size of packet is " << sizeof(*p2) << endOfLine;
             for (int i = 0; i < 20; i++) {
-                Packet temp = Sensors::getPacket();
+                Packet temp = sensors::Sensors::getPacket();
                 printInterface << "Packet #" << i << " :" << temp.toString() << endOfLine;
             }
         #if IF_NOT_CONTROLLER
