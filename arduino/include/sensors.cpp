@@ -104,7 +104,8 @@ namespace sensors {
 
     void Sensors::initialize() {
         setupSensors();
-        auto id = EEPROM.read(packetIdAddress);
+        unsigned int id;
+        EEPROM.get(packetIdAddress, id);
         if (id <= 0) {
             id = 1;
         }
@@ -171,8 +172,8 @@ namespace sensors {
     }
 
     void Sensors::reset() {
-        int id = 1;
-        EEPROM.write(packetIdAddress, id);
+        unsigned int id = 1;
+        EEPROM.put(packetIdAddress, id);
         Packet::setID(id);
         defaultPressure = 0;
     }
@@ -233,7 +234,7 @@ namespace sensors {
         );
         prevTime = packet.getTime();
         prevHeight = height;
-        EEPROM.write(packetIdAddress, packet.getId());
+        EEPROM.put(packetIdAddress, packet.getId());
         return packet;
     }
 

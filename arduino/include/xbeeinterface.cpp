@@ -22,6 +22,7 @@ namespace xbee {
     #if IS_CONTROLLER
         if (xbeeSerial != nullptr) {
             xbeeSerial->begin(9600);
+            xbeeSerial->setTimeout(0);
         }
         // TODO: Write setuping thread for listenning commands
     #endif
@@ -54,8 +55,9 @@ namespace xbee {
     #if IS_CONTROLLER
         // Read xbee buffer
         static STRING_TYPE msg = "";
+        STRING_TYPE s = "";
         while (xbeeSerial->available()) {
-            char c = xbeeSerial->read();
+            int c = xbeeSerial->read();
             if (c == '\n') {
                 // Action on command end
                 // TODO: Change this to command handling
@@ -63,9 +65,11 @@ namespace xbee {
                     lastCommand = msg;
                     canUseCommand = true;
                     msg = "";
+                    Serial.println();
                 }
             } else {
-                msg += c;
+                Serial.println(msg + " (" + String(c) + ")");
+                msg += (char)c;
             }
         }
     #endif

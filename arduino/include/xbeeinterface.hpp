@@ -11,9 +11,9 @@ namespace xbee {
     };
 
     class XBeeInterface {
-    private:
+    public:
         constexpr static int xbeeRX = 6, xbeeTX = 7;
-        constexpr static long listenTimeout = 1500; // micros
+        constexpr static long listenTimeout = 1000; // micros
         static long listenStartTime;
         static STRING_TYPE lastCommand;
         static bool canUseCommand;
@@ -27,7 +27,7 @@ namespace xbee {
         static void send(const STRING_TYPE& msg, const MessageType& type);
 
 
-        static bool isListeningXBee() { return xbeeSerial != nullptr && xbeeSerial->listen(); }
+        static bool isListeningXBee() { return xbeeSerial != nullptr && xbeeSerial->isListening(); }
         static void listenXBee() {
             listenStartTime = millis();
             xbeeSerial->listen();

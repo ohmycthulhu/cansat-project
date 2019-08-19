@@ -8,10 +8,10 @@ void listenSerials() {
   using namespace sensors;
   using namespace xbee;
   long currentTime = millis();
-  if (Sensors::shouldInterrupt(millis)) {
+  if (Sensors::shouldInterrupt(millis())) {
     XBeeInterface::listenXBee();
   } else {
-    if (XBeeInterface::shouldInterrupt(millis)) {
+    if (XBeeInterface::shouldInterrupt(millis())) {
       Sensors::listenGPS();
     }
   }
@@ -35,6 +35,7 @@ void makeOneLifecycle () {
   if (XBeeInterface::isThereCommand()) {
     auto command = xbee::XBeeInterface::getCommand();
     auto status = CommandsInterface::execute(command, &executedCommand);
+    Serial.println("Got command - " + command);
     XBeeInterface::send(String((int)executedCommand) + "," + String((int)status), MessageType::COMMAND_REPORT);
   }
   // Send packet

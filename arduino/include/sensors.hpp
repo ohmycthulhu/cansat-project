@@ -64,7 +64,7 @@ namespace sensors {
 
         static void reset();
 
-        static bool isListeningGPS() { return gpsSerial != nullptr && gpsSerial->listen(); }
+        static bool isListeningGPS() { return gpsSerial != nullptr && gpsSerial->isListening(); }
         static void listenGPS() {
             listenStartTime = millis();
             gpsSerial->listen();

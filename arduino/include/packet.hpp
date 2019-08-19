@@ -3,8 +3,8 @@
 class Packet {
 private:
 // Save next id for automatic id recognition
-    static int nextId;
-    int id;
+    static unsigned int nextId;
+    unsigned int id;
     float temperature;
     float pressure;
     float voltage;
@@ -21,7 +21,7 @@ public:
             const float humidity, const float height, const float speed, const float time,
             const double latitude, const double longitude, STRING_TYPE gpsTime);
 
-    Packet (const int id, const float temperature, const float pressure, const float voltage,
+    Packet (const unsigned int id, const float temperature, const float pressure, const float voltage,
             const float humidity, const float height, const float speed, const float time,
             const double latitude, const double longitude, STRING_TYPE gpsTime);
 
@@ -29,9 +29,9 @@ public:
 
     STRING_TYPE toString() const;
 
-    static int getNextId();
+    static unsigned int getNextId() { return nextId; }
 
-    static void setID (const int& id = 1);
+    static void setID (const unsigned int& id = 1) { nextId = id; }
 
     float getHeight() const { return height; }
     float getTime() const { return time; }
