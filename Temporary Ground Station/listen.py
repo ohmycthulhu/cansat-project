@@ -107,6 +107,7 @@ while True:
                             print(f"{name}: {value}")
                 if data['type_id'] == 1:
                     print(f"Command: {data['command']}", f"Status: {data['status']}", sep = '\n')
+                    sleep(2)
                 print("*"*50, "", "", "", sep='\n')
                 log.write(convertDataToLog(data))
         savedBuffer = '' if jointBuffer[-1] == '\n' else messages[-1]

@@ -23,20 +23,22 @@ void makeOneLifecycle () {
   using namespace commands;
   using namespace xbee;
   using namespace sensors;
-  // Read data from sensors
-  Packet p = sensors::Sensors::getPacket();
-  // Pass packet to commands
   Commands executedCommand;
-  auto commandStatus = CommandsInterface::execute(p, &executedCommand);
-  if (commandStatus != Statuses::NO_COMMAND) {
-    XBeeInterface::send(String((int)executedCommand) + "," + String((int)commandStatus), xbee::MessageType::COMMAND_REPORT);
-  }
   // Check xbee for command
   if (XBeeInterface::isThereCommand()) {
     auto command = xbee::XBeeInterface::getCommand();
     auto status = CommandsInterface::execute(command, &executedCommand);
     Serial.println("Got command - " + command);
     XBeeInterface::send(String((int)executedCommand) + "," + String((int)status), MessageType::COMMAND_REPORT);
+    return;
+  }
+  // Read data from sensors
+  Packet p = sensors::Sensors::getPacket();
+  // Pass packet to commands
+  auto commandStatus = CommandsInterface::execute(p, &executedCommand);
+  if (commandStatus != Statuses::NO_COMMAND) {
+    XBeeInterface::send(String((int)executedCommand) + "," + String((int)commandStatus), xbee::MessageType::COMMAND_REPORT);
+    return;
   }
   // Send packet
   XBeeInterface::send(p.toString(), xbee::MessageType::TELEMETRY);

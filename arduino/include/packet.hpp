@@ -35,6 +35,6 @@ public:
 
     float getHeight() const { return height; }
     float getTime() const { return time; }
-    int getId() const { return id; }
+    unsigned int getId() const { return id; }
 
 };

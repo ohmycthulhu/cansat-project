@@ -10,13 +10,17 @@ regexps = {
     'port': '--port=(.+)',
     'baudrate': '--baudrate=(.+)',
     'timeout': '--timeout=(.+)',
-    'command': '--command=(.+)'
+    'command': '--command=(.+)',
+    'times': '--times=(\d+)',
+    'step': '--step=([0-9.]+)'
 }
 parseResults = {
     'port': '/dev/ttyUSB0',
     'baudrate': '9600',
     'timeout': 0,
-    'command': None
+    'command': None,
+    'times': '1',
+    'step': '.5'
 }
 for arg in argv:
     for key, regex in regexps.items():
@@ -36,14 +40,45 @@ except Exception as e:
 
 s.close()
 
+def sendCommand (command):
+    msg = f"{allCommands[command]}"
+    # msg = f"{allCommands[command]}|{hashlib.md5(str.encode(allCommands[command])).hexdigest()}"
+    try:
+        # Open serial
+        s.open()
+        # Send command
+        s.write(str.encode(msg + "\n"))
+        # Close serial
+        s.close()
+    except Exception as e:
+        print("Couldn't open serial")
+        return False
+    # Show send result
+    print(f"Sended {command} ({allCommands[command]}) as {msg}")
+    return True
+
 allCommands = Commands.getCommands()
-command = parseResults["command"]
-commandExists = command != None
-commandWasSent = False
-while (not commandExists or (commandExists and not commandWasSent)):
+command, times, step = parseResults["command"], int(parseResults['times']), float(parseResults['step'])
+if command != None:
+    if command not in allCommands:
+        print('Inputted command doesn\'t exists')
+        print('There is a list of existing commands: ')
+        print('-'*50)
+        print('quit')
+        for c in allCommands:
+            print(c)
+        print('-'*50)
+    else:
+        for i in range(times):
+            print(f"Try #{i}")
+            while not sendCommand(command):
+                pass
+            sleep(step)
+    exit(1)
+
+while True:
     # Get command
-    if not commandExists:
-        command = input('>>> ')
+    command = input('>>> ')
     # Check some important commands
     if command == 'quit':
         print("Goodbye")
@@ -58,20 +93,6 @@ while (not commandExists or (commandExists and not commandWasSent)):
         for c in allCommands:
             print(c)
         print('-'*50)
-        commandWasSent = True
         continue
-    msg = f"{allCommands[command]}"
-    # msg = f"{allCommands[command]}|{hashlib.md5(str.encode(allCommands[command])).hexdigest()}"
-    try:
-        # Open serial
-        s.open()
-        # Send command
-        s.write(str.encode(msg + "\n"))
-        # Close serial
-        s.close()
-    except Exception as e:
-        print("Couldn't open serial")
-        continue
-    # Show send result
-    print(f"Sended {command} ({allCommands[command]}) as {msg}")
-    commandWasSent = True
+    while not sendCommand(command):
+        pass
