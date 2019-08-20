@@ -13,66 +13,77 @@
 
 namespace commands {
 
-    bool CommandsInterface::forceShutUpBuzzer = false;
+    const static char delimiter = '|';
+    bool forceShutUpBuzzer = false;
 
-    Statuses CommandsInterface::execute(const STRING_TYPE& s, Commands * executedCommand) {
+    void reset();
+    Commands extractCommand (const STRING_TYPE& s);
+    // bool isHashValid(const STRING_TYPE& s);
+    Statuses execute(const Commands& state);
+
+    Statuses execute(const STRING_TYPE& s, Commands * executedCommand) {
+        /*
         if (false && !isHashValid(s)) {
             return Statuses::HASH_FAILED;
         }
+        */
         auto command = extractCommand(s);
         if (executedCommand != nullptr) {
             *executedCommand = command;
         }
         return execute(command);
     }
-    Statuses CommandsInterface::execute(const Packet& s, Commands * executedCommand) {
+    Statuses execute(const Packet& s, Commands * executedCommand) {
         if (executedCommand != nullptr) {
             *executedCommand = Commands::UNDEFINED;
         }
         if (s.getHeight() < 30 && s.getState() == 1) {
             if (!forceShutUpBuzzer) {
-                sensors::Sensors::startBuzzer();
+                sensors::startBuzzer();
             }
         } else {
             forceShutUpBuzzer = false;
-            sensors::Sensors::stopBuzzer();
+            sensors::stopBuzzer();
         }
         return Statuses::NO_COMMAND; // TODO: Write conditions for commands
     }
-    Statuses CommandsInterface::execute(const Commands& state) {
+    Statuses execute(const Commands& state) {
         switch (state)
         {
         case Commands::RESET:
             reset();
             break;
         case Commands::FORCE_START_CAMERA:
-            sensors::Sensors::startCamera(true);
+            sensors::startCamera(true);
             break;
         case Commands::START_CAMERA:
-            sensors::Sensors::startCamera();
+            sensors::startCamera();
             break;
         case Commands::START_RECORDING:
-            sensors::Sensors::startRecording();
+            sensors::startRecording();
             break;
         case Commands::STOP_RECORDING:
-            sensors::Sensors::stopRecording();
+            sensors::stopRecording();
             break;
         case Commands::SHUT_UP_BUZZER:
             forceShutUpBuzzer = true;
-            sensors::Sensors::stopBuzzer();
+            sensors::stopBuzzer();
             break;
         default:
             return Statuses::NO_COMMAND;
         }
         return Statuses::OK;
     }
-    bool CommandsInterface::isHashValid(const STRING_TYPE& s) {
+    /*
+        Hash check is `temporary` disabled
+    bool isHashValid(const STRING_TYPE& s) {
     /*
         Command string is structured like that: 
         command_id|payload|hash
         For checking hash, we're dividing message by last delimiter (|), and getting command_id|payload and hash
         Then we are calculating hash of first and checking if hashes are equal
     */
+   /*
     #if IS_NOT_CONTROLLER
         auto lastDelimiterIndex = s.find_last_of(delimiter);
         auto hash = s.substr(lastDelimiterIndex + 1, s.size());
@@ -93,8 +104,8 @@ namespace commands {
         return h == hash;
     #endif
     
-    }
-    Commands CommandsInterface::extractCommand (const STRING_TYPE& s) {
+    }*/
+    Commands extractCommand (const STRING_TYPE& s) {
     /*
         Command string is structured like that: 
         command_id|payload|hash
@@ -121,9 +132,9 @@ namespace commands {
         return Commands::UNDEFINED;
     }
 
-    void CommandsInterface::reset() {
+    void reset() {
     #if IS_CONTROLLER
-        sensors::Sensors::reset();
+        sensors::reset();
     #else
         std::cout << "Reseting" << std::endl;
     #endif

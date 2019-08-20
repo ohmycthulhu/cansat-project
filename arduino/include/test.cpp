@@ -70,7 +70,7 @@ namespace test {
         printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
     */
         xbee::XBeeInterface::listen();
-        sensors::Sensors::listen();
+        sensors::listen();
 
         return true;
     }
@@ -103,10 +103,10 @@ namespace test {
         #if IF_NOT_CONTROLLER
         try {
         #endif
-            sensors::Sensors::initialize();
+            sensors::initialize();
             
             for (int i = 0; i < 20; i++) {
-                Packet temp = sensors::Sensors::getPacket();
+                Packet temp = sensors::getPacket();
                 printInterface << "Packet #" << i << " :" << temp.toString() << endOfLine;
             }
         #if IF_NOT_CONTROLLER
@@ -169,7 +169,7 @@ namespace test {
         
         commands::Statuses result;
         for (int i = 0; i < sizeof(statuses) / sizeof(commands::Statuses); i++) {
-            result = commands::CommandsInterface::execute(messages[i]);
+            result = commands::execute(messages[i]);
             printInterface << "Result of executing ("<< messages[i] <<") is "
                 << (int)result << " while should be " << (int)statuses[i] << endOfLine;
             if (statuses[i] != result) {

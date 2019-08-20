@@ -23,20 +23,8 @@ enum class Commands: int {
     UNDEFINED = 0
 };
 
-class CommandsInterface {
-private:
-    const static char delimiter = '|';
-    static void reset();
-
-    static bool isHashValid(const STRING_TYPE& s);
-    static Commands extractCommand (const STRING_TYPE& s);
-    static Statuses execute(const Commands& command);
-    static bool forceShutUpBuzzer;
-public:
-    // First operand will be used for defining the right command, the second for returning executed command
-    static Statuses execute(const STRING_TYPE& s, Commands * executedCommand = nullptr);
-    static Statuses execute (const Packet& state, Commands * executedCommand = nullptr);
-    
-}; 
+// First operand will be used for defining the right command, the second for returning executed command
+static Statuses execute(const STRING_TYPE& s, Commands * executedCommand = nullptr);
+static Statuses execute (const Packet& state, Commands * executedCommand = nullptr); 
 
 }

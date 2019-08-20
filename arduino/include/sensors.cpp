@@ -11,88 +11,7 @@
 
 namespace sensors {
 
-    KalmanFilter<float> Sensors::kalmanTemp, Sensors::kalmanPress, Sensors::kalmanHeight;
-    KalmanFilter<float> Sensors::kalmanHumidity, Sensors::kalmanVoltage;
-    float Sensors::prevTime = 0, Sensors::prevHeight = 0;
-    // double Sensors::lat = 0, Sensors::lng = 0;
-    float Sensors::defaultPressure = 0;
-    float Sensors::timeBase = 0.0f;
-#if IS_CONTROLLER
-    Adafruit_BME280 * Sensors::bme = nullptr;
-    SoftwareSerial * Sensors::gpsSerial = new SoftwareSerial(Sensors::gpsRX, Sensors::gpsTX);
-    TinyGPSPlus Sensors::gpsParser;
-#endif
-    long Sensors::listenStartTime = 0;
-
-    bool Sensors::isPowered = false, Sensors::isRecording = false;
-
-    float Sensors::getTemperature() {
-    #if IS_CONTROLLER
-        /*
-            This part will be written when I get access to sensors
-        */
-       return bme != nullptr ? bme->readTemperature() : -1;
-    #else
-       return std::rand() % 300 / 10.0f;
-    #endif
-    }
-
-    short Sensors::getSatelliteState() {
-    #if IS_CONTROLLER
-        return analogRead(lightSensor) > 128;
-    #endif
-        return 0;
-    }
-
-    float Sensors::getVoltage() {
-    #if IS_CONTROLLER
-        /*
-            This part will be written when I get access to sensors
-        */
-    #else
-       return std::rand() % 20 / 10.0f + 3;
-    #endif
-    }
-
-    float Sensors::getPressure() {
-    #if IS_CONTROLLER
-        /*
-            This part will be written when I get access to sensors
-        */
-        return bme != nullptr ? bme->readPressure() : -1;
-    #else
-       return std::rand() % 1000 + 99500;
-    #endif
-    }
-
-    float Sensors::getHumidity() {
-    #if IS_CONTROLLER
-        /*
-            This part will be written when I get access to sensors
-        */
-        return bme != nullptr ? bme->readHumidity() : -1;
-    #else
-       return std::rand() % 1000 / 10.0f;
-    #endif
-    }
-
-    float Sensors::getHeight() {
-    #if IS_CONTROLLER
-        // If default pressure is not set, then find by BME
-        if (bme == nullptr) {
-            return -1;
-        }
-        if (defaultPressure == 0) {
-            defaultPressure = bme->readPressure() / 100.0f;
-            EEPROM.put(defaultPressureAddress, defaultPressure);
-        }
-        return bme->readAltitude(defaultPressure);
-    #else
-        return std::rand() % 1000 / 10.0f;
-    #endif
-    }
-
-    void Sensors::setupSensors() {
+    void setupSensors() {
     #if IS_CONTROLLER
     /*
         This part will be written later
@@ -111,7 +30,7 @@ namespace sensors {
     #endif
     }
 
-    void Sensors::initialize() {
+    void initialize() {
         setupSensors();
         unsigned int id;
         EEPROM.get(packetIdAddress, id);
@@ -126,7 +45,7 @@ namespace sensors {
         isRecording = cameraState > 1;
     }
 
-    float Sensors::getTime() {
+    float getTime() {
     #if IS_CONTROLLER
         return timeBase + (millis() / 1e3);
     #else
@@ -134,59 +53,7 @@ namespace sensors {
     #endif
     }
 
-    double Sensors::getLongitude() {
-    #if IS_CONTROLLER
-        // return lng;
-        return 0;
-        return gpsParser.location.lng();
-    #else
-        return 0;
-    #endif
-    }
-
-    double Sensors::getLatitude() {
-    #if IS_CONTROLLER
-        // return lat;
-        return 0;
-   //     Serial.println(gpsParser.location.lat());
- //       return gpsParser.location.lat();
-    #else
-        return 0;
-    #endif
-    }
-
-    STRING_TYPE Sensors::getGpsTime() {
-    #if IS_CONTROLLER
-    // Time format - HH:mm:ss
-        return "";
-        return String(gpsParser.time.hour()) + ":" 
-            + String(gpsParser.time.minute()) + ":"
-            + String(gpsParser.time.second());
-    #else
-        return "";
-    #endif
-    }
-
-    float Sensors::getSpeed(const float& height) {
-        if (prevTime == 0 || prevHeight == 0) {
-            return 0;
-        }
-        float dT = getTime() - prevTime;
-        return abs(dT) > 1e-3 ? (height - prevHeight)/dT : 0;
-    }
-
-    void Sensors::listen() {
-    #if IS_CONTROLLER
-        // Listen for GPS.
-        while (gpsSerial->available()) {
-            // Serial.println(gpsSerial->available());
-            gpsParser.encode(gpsSerial->read());
-        }
-        // Serial.println(gpsParser.location.lat());
-    #endif
-    }
-
-    void Sensors::reset() {
+    void reset() {
         unsigned int id = 1;
         defaultPressure = 0;
         timeBase = 0;
@@ -196,7 +63,7 @@ namespace sensors {
         Packet::setID(id);
     }
 
-    void Sensors::startCamera(const bool force) {
+    void startCamera(const bool force) {
         if (force || !isPowered) {
             isPowered = true;
             isRecording = false;
@@ -217,7 +84,7 @@ namespace sensors {
             EEPROM.write(cameraStateAddress, 1); // 1 = camera is powered and don't record
         }
     }
-    void Sensors::startRecording() {
+    void startRecording() {
         if (isPowered && !isRecording) {
             // Power for .7 seconds
             digitalWrite(cameraPower, HIGH);
@@ -226,7 +93,7 @@ namespace sensors {
             EEPROM.write(cameraStateAddress, 2); // 2 = camera is powered and records
         }
     }
-    void Sensors::stopRecording() {
+    void stopRecording() {
         if (isPowered && isRecording) {
             // Power for .7 seconds
             digitalWrite(cameraPower, HIGH);
@@ -236,27 +103,65 @@ namespace sensors {
         }
     }
 
-    void Sensors::startBuzzer() {
+    void startBuzzer() {
         tone(buzzerPin, 400);
     }
-    void Sensors::stopBuzzer() {
+    void stopBuzzer() {
         noTone(buzzerPin);
     }
 
-    Packet Sensors::getPacket() {
-        auto height = kalmanHeight.update(getHeight());
+    void listen() {
+        
+    }
+
+    Packet getPacket() {
+    #if IS_CONTROLLER
+        float temp = bme != nullptr ? bme->readTemperature() : -1;
+        float pressure = bme != nullptr ? bme->readPressure() : -1;
+        float voltage = 0;
+        float humidity = bme != nullptr ? bme->readHumidity() : -1;
+        float height;
+        if (bme == nullptr) {
+            height = -1;
+        }
+        if (defaultPressure == 0) {
+            defaultPressure = bme->readPressure() / 100.0f;
+            EEPROM.put(defaultPressureAddress, defaultPressure);
+        }
+        height = bme->readAltitude(defaultPressure);
+        float speed;
+        if (prevTime == 0 || prevHeight == 0) {
+            speed = 0;
+        }
+        auto dT = getTime() - prevTime;
+        speed = abs(dT) > 1e-3 ? (height - prevHeight)/dT : 0;
+        double latitude = gpsParser.location.lat();
+        double longitude = gpsParser.location.lng();
+        short satState = analogRead(lightSensor) > 128;
+        STRING_TYPE gpsTime =  String(gpsParser.time.hour()) + ":" 
+            + String(gpsParser.time.minute()) + ":"
+            + String(gpsParser.time.second());
+    #else
+        float temp = std::rand() % 300 / 10.0f;
+        float pressure = std::rand() % 1000 + 99500;
+        float voltage = std::rand() % 20 / 10.0f + 3;
+        float humidity = std::rand() % 1000 / 10.0f;
+        float height = std::rand() % 1000 / 10.0f;
+        short satState = 0;
+        STRING_TYPE gpsTime = "";
+    #endif
         Packet packet = Packet(
-            kalmanTemp.update(getTemperature()),
-            kalmanPress.update(getPressure()),
-            kalmanVoltage.update(getVoltage()),
-            kalmanHumidity.update(getHumidity()),
-            kalmanHeight.update(getHeight()),
-            getSpeed(height),
+            kalmanTemp.update(temp),
+            kalmanPress.update(pressure),
+            kalmanVoltage.update(voltage),
+            kalmanHumidity.update(humidity),
+            kalmanHeight.update(height),
+            speed,
             getTime(),
-            getLatitude(),
-            getLongitude(),
-            getGpsTime(),
-            getSatelliteState()
+            latitude,
+            longitude,
+            gpsTime,
+            satState
         );
         prevTime = packet.getTime();
         prevHeight = height;
