@@ -9,7 +9,12 @@
 #include <MD5.h>
 #endif
 
+#define CASE_COMMAND(X,Y) case (int)X::Y: return X::Y;
+
 namespace commands {
+
+    bool CommandsInterface::forceShutUpBuzzer = false;
+
     Statuses CommandsInterface::execute(const STRING_TYPE& s, Commands * executedCommand) {
         if (false && !isHashValid(s)) {
             return Statuses::HASH_FAILED;
@@ -23,6 +28,14 @@ namespace commands {
     Statuses CommandsInterface::execute(const Packet& s, Commands * executedCommand) {
         if (executedCommand != nullptr) {
             *executedCommand = Commands::UNDEFINED;
+        }
+        if (s.getHeight() < 30 && s.getState() == 1) {
+            if (!forceShutUpBuzzer) {
+                sensors::Sensors::startBuzzer();
+            }
+        } else {
+            forceShutUpBuzzer = false;
+            sensors::Sensors::stopBuzzer();
         }
         return Statuses::NO_COMMAND; // TODO: Write conditions for commands
     }
@@ -43,6 +56,10 @@ namespace commands {
             break;
         case Commands::STOP_RECORDING:
             sensors::Sensors::stopRecording();
+            break;
+        case Commands::SHUT_UP_BUZZER:
+            forceShutUpBuzzer = true;
+            sensors::Sensors::stopBuzzer();
             break;
         default:
             return Statuses::NO_COMMAND;
@@ -91,17 +108,13 @@ namespace commands {
     #else
         int i = s.substring(0, s.indexOf(delimiter)).toInt();
     #endif
-        switch(i) {
-            case (int)Commands::RESET:
-                return Commands::RESET;
-            case (int)Commands::START_CAMERA:
-                return Commands::START_CAMERA;
-            case (int)Commands::START_RECORDING:
-                return Commands::START_RECORDING;
-            case (int)Commands::STOP_RECORDING:
-                return Commands::STOP_RECORDING;
-            case (int)Commands::FORCE_START_CAMERA:
-                return Commands::FORCE_START_CAMERA;
+        switch(i) {            
+            CASE_COMMAND (Commands, RESET)
+            CASE_COMMAND (Commands, START_CAMERA)
+            CASE_COMMAND (Commands, START_RECORDING)
+            CASE_COMMAND (Commands, STOP_RECORDING)
+            CASE_COMMAND (Commands, FORCE_START_CAMERA)
+            CASE_COMMAND (Commands, SHUT_UP_BUZZER)
             default:
                 return Commands::UNDEFINED;
         }

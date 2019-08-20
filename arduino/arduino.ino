@@ -9,7 +9,7 @@ void listenSerials() {
   using namespace xbee;
   long currentTime = millis();
   if (Sensors::shouldInterrupt(millis())) {
-    XBeeInterface::listenXBee();
+     XBeeInterface::listenXBee();
   } else {
     if (XBeeInterface::shouldInterrupt(millis())) {
       Sensors::listenGPS();
@@ -41,13 +41,20 @@ void makeOneLifecycle () {
     return;
   }
   // Send packet
+  Serial.println(p.toString());
+  auto parser = Sensors::getGPSParser();
+  Serial.println("Successful checksums: " + String(parser.passedChecksum()) + ". Failed checksums: " + String(parser.failedChecksum()));
   XBeeInterface::send(p.toString(), xbee::MessageType::TELEMETRY);
 }
 void setup() {
+  // For Debug
   Serial.begin(9600);
 
   sensors::Sensors::initialize();
   xbee::XBeeInterface::initialize();
+
+  sensors::Sensors::reset();
+  sensors::Sensors::listenGPS();
 
   Timer1.initialize(1e4); // 10 ms = 10^4
   Timer1.attachInterrupt(listenSerials);
@@ -55,5 +62,12 @@ void setup() {
 
 void loop() {
   makeOneLifecycle();
+  auto start = millis();
+  do
+  {
+    listenSerials();
+    /* code */
+  } while (millis() - start < 1000);
+  
   delay(500);
 }

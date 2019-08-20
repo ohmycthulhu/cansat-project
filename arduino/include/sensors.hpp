@@ -28,8 +28,10 @@ namespace sensors {
         /*
             <Pins>
         */
-        constexpr static int gpsTX = 4, gpsRX = 5;
-        constexpr static int cameraMode = 2, cameraPower = 8;
+        constexpr static uint8_t gpsTX = 4, gpsRX = 5;
+        constexpr static uint8_t cameraMode = 2, cameraPower = 8;
+        constexpr static uint8_t lightSensor = A1;
+        constexpr static uint8_t buzzerPin = 5;
        /*
             </Pins>
         */
@@ -38,6 +40,8 @@ namespace sensors {
         constexpr static int packetIdAddress = 0x53;
         constexpr static int defaultPressureAddress = 0x63;
         constexpr static int cameraStateAddress = 0x83;
+        constexpr static int baseTimeAddress = 0x93;
+        static float timeBase;
         static KalmanFilter<float> kalmanTemp, kalmanPress, kalmanHumidity, kalmanVoltage, kalmanHeight;
         // Default pressure for calculating height depending on pressure difference
         static float defaultPressure;
@@ -53,6 +57,7 @@ namespace sensors {
         static float getHeight();
         static float getVoltage();
         static float getTime();
+        static short getSatelliteState();
         static double getLongitude();
         static double getLatitude();
         static STRING_TYPE getGpsTime();
@@ -76,5 +81,10 @@ namespace sensors {
         static void startCamera (const bool force = false);
         static void startRecording ();
         static void stopRecording ();
+
+        static void startBuzzer();
+        static void stopBuzzer();
+
+        static const TinyGPSPlus& getGPSParser() { return gpsParser; }
     };
 }

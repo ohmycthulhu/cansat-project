@@ -15,15 +15,16 @@ private:
     double latitude;
     double longitude;
     STRING_TYPE gpsTime;
+    short satState;
 
 public:
     Packet (const float temperature, const float pressure, const float voltage,
             const float humidity, const float height, const float speed, const float time,
-            const double latitude, const double longitude, STRING_TYPE gpsTime);
+            const double latitude, const double longitude, STRING_TYPE gpsTime, const short state);
 
     Packet (const unsigned int id, const float temperature, const float pressure, const float voltage,
             const float humidity, const float height, const float speed, const float time,
-            const double latitude, const double longitude, STRING_TYPE gpsTime);
+            const double latitude, const double longitude, STRING_TYPE gpsTime, const short state);
 
     Packet (const Packet& p);
 
@@ -35,6 +36,7 @@ public:
 
     float getHeight() const { return height; }
     float getTime() const { return time; }
+    short getState() const { return satState; }
     unsigned int getId() const { return id; }
 
 };

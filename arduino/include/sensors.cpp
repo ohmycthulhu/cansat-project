@@ -16,6 +16,7 @@ namespace sensors {
     float Sensors::prevTime = 0, Sensors::prevHeight = 0;
     // double Sensors::lat = 0, Sensors::lng = 0;
     float Sensors::defaultPressure = 0;
+    float Sensors::timeBase = 0.0f;
 #if IS_CONTROLLER
     Adafruit_BME280 * Sensors::bme = nullptr;
     SoftwareSerial * Sensors::gpsSerial = new SoftwareSerial(Sensors::gpsRX, Sensors::gpsTX);
@@ -34,6 +35,13 @@ namespace sensors {
     #else
        return std::rand() % 300 / 10.0f;
     #endif
+    }
+
+    short Sensors::getSatelliteState() {
+    #if IS_CONTROLLER
+        return analogRead(lightSensor) > 128;
+    #endif
+        return 0;
     }
 
     float Sensors::getVoltage() {
@@ -98,6 +106,7 @@ namespace sensors {
         }
         pinMode(cameraMode, OUTPUT);
         pinMode(cameraPower, OUTPUT);
+        pinMode(lightSensor, INPUT);
         // test::printInterface << "BME status is " << status << test::endOfLine;
     #endif
     }
@@ -111,6 +120,7 @@ namespace sensors {
         }
         Packet::setID(id);
         EEPROM.get(defaultPressureAddress, defaultPressure);
+        EEPROM.get(baseTimeAddress, timeBase);
         int cameraState = EEPROM.read(cameraStateAddress);
         isPowered = cameraState > 0;
         isRecording = cameraState > 1;
@@ -118,7 +128,7 @@ namespace sensors {
 
     float Sensors::getTime() {
     #if IS_CONTROLLER
-        return millis() / 1e3;
+        return timeBase + (millis() / 1e3);
     #else
         return 0;
     #endif
@@ -127,6 +137,7 @@ namespace sensors {
     double Sensors::getLongitude() {
     #if IS_CONTROLLER
         // return lng;
+        return 0;
         return gpsParser.location.lng();
     #else
         return 0;
@@ -136,7 +147,9 @@ namespace sensors {
     double Sensors::getLatitude() {
     #if IS_CONTROLLER
         // return lat;
-        return gpsParser.location.lat();
+        return 0;
+   //     Serial.println(gpsParser.location.lat());
+ //       return gpsParser.location.lat();
     #else
         return 0;
     #endif
@@ -145,7 +158,7 @@ namespace sensors {
     STRING_TYPE Sensors::getGpsTime() {
     #if IS_CONTROLLER
     // Time format - HH:mm:ss
-        // return "";
+        return "";
         return String(gpsParser.time.hour()) + ":" 
             + String(gpsParser.time.minute()) + ":"
             + String(gpsParser.time.second());
@@ -166,16 +179,21 @@ namespace sensors {
     #if IS_CONTROLLER
         // Listen for GPS.
         while (gpsSerial->available()) {
+            // Serial.println(gpsSerial->available());
             gpsParser.encode(gpsSerial->read());
         }
+        // Serial.println(gpsParser.location.lat());
     #endif
     }
 
     void Sensors::reset() {
         unsigned int id = 1;
-        EEPROM.put(packetIdAddress, id);
-        Packet::setID(id);
         defaultPressure = 0;
+        timeBase = 0;
+        EEPROM.put(packetIdAddress, id);
+        EEPROM.put(defaultPressureAddress, defaultPressure);
+        EEPROM.put(baseTimeAddress, timeBase);
+        Packet::setID(id);
     }
 
     void Sensors::startCamera(const bool force) {
@@ -218,6 +236,13 @@ namespace sensors {
         }
     }
 
+    void Sensors::startBuzzer() {
+        tone(buzzerPin, 400);
+    }
+    void Sensors::stopBuzzer() {
+        noTone(buzzerPin);
+    }
+
     Packet Sensors::getPacket() {
         auto height = kalmanHeight.update(getHeight());
         Packet packet = Packet(
@@ -230,11 +255,13 @@ namespace sensors {
             getTime(),
             getLatitude(),
             getLongitude(),
-            getGpsTime()
+            getGpsTime(),
+            getSatelliteState()
         );
         prevTime = packet.getTime();
         prevHeight = height;
         EEPROM.put(packetIdAddress, packet.getId());
+        EEPROM.put(baseTimeAddress, packet.getTime());
         return packet;
     }
 

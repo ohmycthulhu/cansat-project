@@ -19,6 +19,7 @@ enum class Commands: int {
     START_RECORDING, // 3
     STOP_RECORDING, // 4
     FORCE_START_CAMERA, // 5
+    SHUT_UP_BUZZER, // 6
     UNDEFINED = 0
 };
 
@@ -30,6 +31,7 @@ private:
     static bool isHashValid(const STRING_TYPE& s);
     static Commands extractCommand (const STRING_TYPE& s);
     static Statuses execute(const Commands& command);
+    static bool forceShutUpBuzzer;
 public:
     // First operand will be used for defining the right command, the second for returning executed command
     static Statuses execute(const STRING_TYPE& s, Commands * executedCommand = nullptr);
