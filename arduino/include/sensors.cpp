@@ -54,10 +54,10 @@ namespace sensors {
     void reset() {
         unsigned int id = 1;
         defaultPressure = 0;
-        timeBase = 0;
+        timeBase = -(millis() / 1e3);
         EEPROM.put(packetIdAddress, id);
         EEPROM.put(defaultPressureAddress, defaultPressure);
-        EEPROM.put(baseTimeAddress, timeBase);
+        EEPROM.put(baseTimeAddress, 0);
         Packet::setID(id);
     }
 
@@ -109,6 +109,9 @@ namespace sensors {
     }
 
     void listen() {
+        if (!isListeningGPS()) {
+            listenGPS();
+        }
         while (gpsSerial.available()){
             gpsParser.encode(gpsSerial.read());
         }
@@ -138,8 +141,8 @@ namespace sensors {
         double latitude = gpsParser.location.lat();
         double longitude = gpsParser.location.lng();
         short satState = analogRead(lightSensor) > 512;
-        STRING_TYPE gpsTime =  String(gpsParser.date.day()) + "/" +
-        String(gpsParser.date.month()) + "/" +
+        STRING_TYPE gpsTime =  String(gpsParser.date.day()) + "-" +
+        String(gpsParser.date.month()) + "-" +
         String(gpsParser.date.year()) + " " +
         String(gpsParser.time.hour()) + ":" +
         String(gpsParser.time.minute()) + ":" +

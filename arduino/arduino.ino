@@ -45,20 +45,20 @@ void smartDelay (long ms) {
   do {
     switch(state) {
       case 0:
-        sensors::listen();
         if (millis() - lastSwitchTime > sensors::listenTimeout) {
-          xbee::XBeeInterface::listenXBee();
           lastSwitchTime = millis();
           state = 1;
+          continue;
         }
+        sensors::listen();
         break;
       case 1:
-        xbee::XBeeInterface::listen();
         if (millis() - lastSwitchTime > xbee::XBeeInterface::listenTimeout) {
-          sensors::listenGPS();
           lastSwitchTime = millis();
           state = 0;
+          continue;
         }
+        xbee::XBeeInterface::listen();
         break;
     }
   } while(millis() - start < ms);

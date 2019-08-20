@@ -7,10 +7,10 @@
 namespace commands {
 
 enum class Statuses {
-    OK,
-    FAILED,
-    HASH_FAILED,
-    NO_COMMAND
+    OK, // 0
+    FAILED, // 1
+    HASH_FAILED, // 2
+    NO_COMMAND // 3
 };
 
 enum class Commands: int {

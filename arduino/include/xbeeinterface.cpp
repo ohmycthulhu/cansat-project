@@ -53,6 +53,9 @@ namespace xbee {
 
     void XBeeInterface::listen() {
     #if IS_CONTROLLER
+        if (!isListeningXBee()) {
+            listenXBee();
+        }
         // Read xbee buffer
         static STRING_TYPE msg = "";
         STRING_TYPE s = "";
@@ -71,6 +74,7 @@ namespace xbee {
                 Serial.println(msg + " (" + String(c) + ")");
                 msg += (char)c;
             }
+            Serial.println("Reading");
         }
     #endif
     }

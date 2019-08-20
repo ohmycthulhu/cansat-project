@@ -55,6 +55,9 @@ def parse(s):
         # {Command ID 0}, {Running time 1 }, {Packets count 2}, {Temperature 3}, {Pressure 4}, ...
         # {Humidity 5}, {Height 6}, {speed 7}, {Latitude 8}, {Longitude 9}, {Voltage 10}
 
+        # {Command ID 0}, {Running time 1}, {Packets count 2}, {Temperature 3}, {Pressure 4}, {Humidity 5}, {Height 6},
+        # {speed 7}, {Latitude 8}, {Longitude 9}, {Gps time 10}, {Voltage 11}, {State 12}|{Md5 hash}
+
         return {
             'type': 'Telemetry',
             'type_id': 0,
@@ -67,7 +70,9 @@ def parse(s):
             'Speed': telemetry_parts[7],
             'Latitude': telemetry_parts[8],
             'Longitude': telemetry_parts[9],
-            'Voltage': telemetry_parts[10]
+            'GPS Time': telemetry_parts[10],
+            'Voltage': telemetry_parts[11],
+            'State': telemetry_parts[12]
         }
     if message_parts[0] == '1':
         report_parts = message_parts[1].split(',')

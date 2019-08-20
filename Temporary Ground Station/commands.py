@@ -22,6 +22,7 @@ class Commands:
     START_RECORDING = '3' # 3
     STOP_RECORDING = '4' # 4
     FORCE_START_CAMERA = '5' # 5
+    SHUT_BUZZER = '6'
     UNDEFINED = '0'
     def getCommand (id):
         if id == Commands.RESET:
@@ -34,6 +35,8 @@ class Commands:
             return 'Stop Recording'
         if id == Commands.FORCE_START_CAMERA:
             return 'Force Camera Start'
+        if id == Commands.SHUT_BUZZER
+            return 'Shut Buzzer'
         if id == Commands.UNDEFINED:
             return 'Undefined'
 
@@ -43,5 +46,6 @@ class Commands:
             'start_camera': '2',
             'start_recording': '3',
             'stop_recording': '4',
-            'force_start_camera': '5'
+            'force_start_camera': '5',
+            'shut_buzzer': '6'
         }
