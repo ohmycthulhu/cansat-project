@@ -69,6 +69,11 @@ namespace commands {
             forceShutUpBuzzer = true;
             sensors::stopBuzzer();
             break;
+        case Commands::SOFT_RESET_CAMERA:
+            sensors::isPowered = false;
+            sensors::isRecording = false;
+            EEPROM.write(sensors::cameraStateAddress, 0);
+            break;
         default:
             return Statuses::NO_COMMAND;
         }
@@ -126,6 +131,7 @@ namespace commands {
             CASE_COMMAND (Commands, STOP_RECORDING)
             CASE_COMMAND (Commands, FORCE_START_CAMERA)
             CASE_COMMAND (Commands, SHUT_UP_BUZZER)
+            CASE_COMMAND (Commands, SOFT_RESET_CAMERA)
             default:
                 return Commands::UNDEFINED;
         }

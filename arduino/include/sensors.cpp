@@ -41,6 +41,9 @@ namespace sensors {
         int cameraState = EEPROM.read(cameraStateAddress);
         isPowered = cameraState > 0;
         isRecording = cameraState > 1;
+        if (!isRecording) {
+            startRecording();
+        }
     }
 
     float getTime() {
@@ -67,37 +70,51 @@ namespace sensors {
             isRecording = false;
             // Turning on camera
             digitalWrite(cameraPower, HIGH);
-            delay(3000);
+            delay(2500);
             digitalWrite(cameraPower, LOW);
             delay(700);
+            /*
             // Toggling through 2 modes
             digitalWrite(cameraMode, HIGH);
-            delay(700);
+            delay(500);
             digitalWrite(cameraMode, LOW);
-            delay(700);
+            delay(700); */
+            // No, toggle 1 mode
             digitalWrite(cameraMode, HIGH);
-            delay(700);
+            delay(500);
             digitalWrite(cameraMode, LOW);
             delay(700);
+            
             EEPROM.write(cameraStateAddress, 1); // 1 = camera is powered and don't record
         }
     }
     void startRecording() {
-        if (isPowered && !isRecording) {
-            // Power for .7 seconds
+        if (!isPowered) {
+            startCamera();
+        }
+        if (!isRecording) {
+            // Power for .5 seconds
             digitalWrite(cameraPower, HIGH);
-            delay(700);
+            delay(500);
             digitalWrite(cameraPower, LOW);
             EEPROM.write(cameraStateAddress, 2); // 2 = camera is powered and records
+            isRecording = true;
         }
     }
+
     void stopRecording() {
         if (isPowered && isRecording) {
-            // Power for .7 seconds
+            // Power for .5 seconds
             digitalWrite(cameraPower, HIGH);
-            delay(700);
+            delay(500);
             digitalWrite(cameraPower, LOW);
-            EEPROM.write(cameraStateAddress, 1); // 1 = camera is powered and doesn't record
+            EEPROM.write(cameraStateAddress, 0); // 1 = camera is powered and doesn't record
+            isRecording = false;
+            isPowered = false;
+            // Stop camera
+            digitalWrite(cameraPower, HIGH);
+            delay(8000);
+            digitalWrite(cameraPower, LOW);
         }
     }
 

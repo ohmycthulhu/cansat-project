@@ -20,6 +20,7 @@ enum class Commands: int {
     STOP_RECORDING, // 4
     FORCE_START_CAMERA, // 5
     SHUT_UP_BUZZER, // 6
+    SOFT_RESET_CAMERA, // 7
     UNDEFINED = 0
 };
 
