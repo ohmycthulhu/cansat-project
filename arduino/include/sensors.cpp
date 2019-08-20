@@ -20,9 +20,7 @@ namespace sensors {
             bme = new Adafruit_BME280();
             bme->begin();
         }
-        if (gpsSerial != nullptr) {
-            gpsSerial->begin(9600);
-        }
+        gpsSerial.begin(9600);
         pinMode(cameraMode, OUTPUT);
         pinMode(cameraPower, OUTPUT);
         pinMode(lightSensor, INPUT);
@@ -111,14 +109,16 @@ namespace sensors {
     }
 
     void listen() {
-        
+        while (gpsSerial.available()){
+            gpsParser.encode(gpsSerial.read());
+        }
     }
 
     Packet getPacket() {
     #if IS_CONTROLLER
         float temp = bme != nullptr ? bme->readTemperature() : -1;
         float pressure = bme != nullptr ? bme->readPressure() : -1;
-        float voltage = 0;
+        float voltage = analogRead(voltageDividerPin) / 1024.0f * 10;
         float humidity = bme != nullptr ? bme->readHumidity() : -1;
         float height;
         if (bme == nullptr) {
@@ -137,16 +137,20 @@ namespace sensors {
         speed = abs(dT) > 1e-3 ? (height - prevHeight)/dT : 0;
         double latitude = gpsParser.location.lat();
         double longitude = gpsParser.location.lng();
-        short satState = analogRead(lightSensor) > 128;
-        STRING_TYPE gpsTime =  String(gpsParser.time.hour()) + ":" 
-            + String(gpsParser.time.minute()) + ":"
-            + String(gpsParser.time.second());
+        short satState = analogRead(lightSensor) > 512;
+        STRING_TYPE gpsTime =  String(gpsParser.date.day()) + "/" +
+        String(gpsParser.date.month()) + "/" +
+        String(gpsParser.date.year()) + " " +
+        String(gpsParser.time.hour()) + ":" +
+        String(gpsParser.time.minute()) + ":" +
+        String(gpsParser.time.second());
     #else
         float temp = std::rand() % 300 / 10.0f;
         float pressure = std::rand() % 1000 + 99500;
         float voltage = std::rand() % 20 / 10.0f + 3;
         float humidity = std::rand() % 1000 / 10.0f;
         float height = std::rand() % 1000 / 10.0f;
+        double latitude = 0.0, longitude = 0.0;
         short satState = 0;
         STRING_TYPE gpsTime = "";
     #endif

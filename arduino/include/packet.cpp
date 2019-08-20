@@ -33,7 +33,7 @@ STRING_TYPE Packet::toString() const {
 /*
     Telemetry format:
         {Command ID}, {Running time}, {Packets count}, {Temperature}, {Pressure}, ...
-        {Humidity}, {Height}, {speed}, {Latitude}, {Longitude}, {Voltage}, {State}
+        {Humidity}, {Height}, {speed}, {Latitude}, {Longitude}, {Gps time}, {Voltage}, {State}
 */
 #if IS_NOT_CONTROLLER
     auto result = std::stringstream();
@@ -47,6 +47,7 @@ STRING_TYPE Packet::toString() const {
             << speed << ","
             << latitude << ","
             << longitude << ","
+            << gpsTime << ","
             << voltage << ","
             << satState;
     auto s = result.str();
@@ -59,8 +60,9 @@ STRING_TYPE Packet::toString() const {
             String(humidity) + "," +
             String(height) + "," +
             String(speed) + "," +
-            String(latitude) + "," +
-            String(longitude) + "," +            
+            String(latitude, 6) + "," +
+            String(longitude, 6) + "," +
+            gpsTime + "," +            
             String(voltage) + "," +
             String(satState);
 #endif

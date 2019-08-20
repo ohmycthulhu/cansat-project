@@ -19,6 +19,7 @@ namespace sensors {
     constexpr  uint8_t cameraMode = 2, cameraPower = 8;
     constexpr  uint8_t lightSensor = A1;
     constexpr  uint8_t buzzerPin = 5;
+    constexpr uint8_t voltageDividerPin = A0;
     /*
         </Pins>
     */
@@ -29,7 +30,7 @@ namespace sensors {
     #if IS_CONTROLLER
     // BME sensor for measuring temperature, pressure, height and humidity
         Adafruit_BME280* bme = nullptr;
-        SoftwareSerial * gpsSerial = new SoftwareSerial(gpsTX, gpsRX);
+        SoftwareSerial gpsSerial(gpsRX, gpsTX);
         TinyGPSPlus gpsParser;
     #endif
     /*
@@ -58,10 +59,10 @@ namespace sensors {
 
     void reset();
 
-    bool isListeningGPS() { return gpsSerial != nullptr && gpsSerial->isListening(); }
+    bool isListeningGPS() { return gpsSerial.isListening(); }
     void listenGPS() {
         listenStartTime = millis();
-        gpsSerial->listen();
+        gpsSerial.listen();
     }
     bool shouldInterrupt(const long& time) {
         return isListeningGPS() && (time - listenStartTime > listenTimeout);

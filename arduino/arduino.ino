@@ -1,22 +1,6 @@
-#include <TimerOne.h>
 #include <MemoryFree.h>
 #include "include/sensors.cpp"
 #include "include/xbeeinterface.cpp"
-
-
-void listenSerials() {
-  using namespace xbee;
-  long currentTime = millis();
-  if (sensors::shouldInterrupt(millis())) {
-     XBeeInterface::listenXBee();
-  } else {
-    if (XBeeInterface::shouldInterrupt(millis())) {
-      sensors::listenGPS();
-    }
-  }
-  sensors::listen();
-  xbee::XBeeInterface::listen();
-}
 
 void makeOneLifecycle () {
   using namespace commands;
@@ -26,7 +10,6 @@ void makeOneLifecycle () {
   if (XBeeInterface::isThereCommand()) {
     auto command = xbee::XBeeInterface::getCommand();
     auto status = commands::execute(command, &executedCommand);
-    Serial.println("Got command - " + command);
     XBeeInterface::send(String((int)executedCommand) + "," + String((int)status), MessageType::COMMAND_REPORT);
     return;
   }
@@ -41,31 +24,48 @@ void makeOneLifecycle () {
   // Send packet
   Serial.println(p.toString());
   auto parser = sensors::getGPSParser();
-  Serial.println("Successful checksums: " + String(parser.passedChecksum()) + ". Failed checksums: " + String(parser.failedChecksum()));
   XBeeInterface::send(p.toString(), xbee::MessageType::TELEMETRY);
 }
+
 void setup() {
   // For Debug
   Serial.begin(9600);
-
+  
   sensors::initialize();
   xbee::XBeeInterface::initialize();
 
-  sensors::reset();
   sensors::listenGPS();
-
-  Timer1.initialize(1e4); // 10 ms = 10^4
-  Timer1.attachInterrupt(listenSerials);
+  
 }
 
-void loop() {
-  makeOneLifecycle();
+void smartDelay (long ms) {
+  static unsigned long lastSwitchTime = 0;
+  static unsigned short state = 1;
   auto start = millis();
-  do
-  {
-    listenSerials();
-    /* code */
-  } while (millis() - start < 1000);
+  do {
+    switch(state) {
+      case 0:
+        sensors::listen();
+        if (millis() - lastSwitchTime > sensors::listenTimeout) {
+          xbee::XBeeInterface::listenXBee();
+          lastSwitchTime = millis();
+          state = 1;
+        }
+        break;
+      case 1:
+        xbee::XBeeInterface::listen();
+        if (millis() - lastSwitchTime > xbee::XBeeInterface::listenTimeout) {
+          sensors::listenGPS();
+          lastSwitchTime = millis();
+          state = 0;
+        }
+        break;
+    }
+  } while(millis() - start < ms);
+}
+
+void loop() {  
   
-  delay(500);
+  makeOneLifecycle();
+  smartDelay(700);
 }
