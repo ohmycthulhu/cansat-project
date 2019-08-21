@@ -18,7 +18,7 @@ namespace test {
 
     bool test() {
 
-        Packet::setID(1);
+        Packet::nextId = 1;
 
         printInterface << "Starting tests..." << endOfLine;
         printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;

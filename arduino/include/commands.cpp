@@ -37,7 +37,7 @@ namespace commands {
         if (executedCommand != nullptr) {
             *executedCommand = Commands::UNDEFINED;
         }
-        if (s.getHeight() < 30 && s.getState() == 1) {
+        if (s.height < 30 && s.satState == 1) {
             if (!forceShutUpBuzzer) {
                 sensors::startBuzzer();
             }

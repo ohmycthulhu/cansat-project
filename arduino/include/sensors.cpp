@@ -35,7 +35,7 @@ namespace sensors {
         if (id <= 0) {
             id = 1;
         }
-        Packet::setID(id);
+        Packet::nextId = id;
         EEPROM.get(defaultPressureAddress, defaultPressure);
         EEPROM.get(baseTimeAddress, timeBase);
         int cameraState = EEPROM.read(cameraStateAddress);
@@ -61,7 +61,7 @@ namespace sensors {
         EEPROM.put(packetIdAddress, id);
         EEPROM.put(defaultPressureAddress, defaultPressure);
         EEPROM.put(baseTimeAddress, 0);
-        Packet::setID(id);
+        Packet::nextId = id;
     }
 
     void startCamera(const bool force) {
@@ -187,10 +187,10 @@ namespace sensors {
             gpsTime,
             satState
         );
-        prevTime = packet.getTime();
+        prevTime = packet.time;
         prevHeight = height;
-        EEPROM.put(packetIdAddress, packet.getId());
-        EEPROM.put(baseTimeAddress, packet.getTime());
+        EEPROM.put(packetIdAddress, packet.id);
+        EEPROM.put(baseTimeAddress, packet.time);
         return packet;
     }
 

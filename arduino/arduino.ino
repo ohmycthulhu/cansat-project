@@ -22,14 +22,14 @@ void makeOneLifecycle () {
     return;
   }
   // Send packet
-  Serial.println(p.toString());
+  // Serial.println(p.toString());
   auto parser = sensors::getGPSParser();
   XBeeInterface::send(p.toString(), xbee::MessageType::TELEMETRY);
 }
 
 void setup() {
   // For Debug
-  Serial.begin(9600);
+  // Serial.begin(9600);
   
   sensors::initialize();
   xbee::XBeeInterface::initialize();

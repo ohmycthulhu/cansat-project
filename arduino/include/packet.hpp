@@ -1,7 +1,8 @@
 #include "common.hpp"
 
 class Packet {
-private:
+    // Sorry, but I have to declare it as publis to avoid getter methods
+public:
 // Save next id for automatic id recognition
     static unsigned int nextId;
     unsigned int id;
@@ -29,14 +30,5 @@ public:
     Packet (const Packet& p);
 
     STRING_TYPE toString() const;
-
-    static unsigned int getNextId() { return nextId; }
-
-    static void setID (const unsigned int& id = 1) { nextId = id; }
-
-    float getHeight() const { return height; }
-    float getTime() const { return time; }
-    short getState() const { return satState; }
-    unsigned int getId() const { return id; }
 
 };

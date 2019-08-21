@@ -18,8 +18,8 @@ public:
     KalmanFilter (const T& value) : value(value) {}
 
     T update(const T& newValue) {
-        float _p = p + q;
-        float k = _p / (_p + r);
+    float _p = p + q;
+    float k = _p / (_p + r);
         if (value) {
             value = (value + k * (newValue - value)); // x + alpha * dx
             p = _p * (1 - k);
@@ -28,8 +28,8 @@ public:
         }
         return value;
     }
-    T getValue() const { return value; }
-    void reset() {
+    inline T getValue() const { return value; }
+    inline void reset() {
         value = 0;
         p = 1;
     }
