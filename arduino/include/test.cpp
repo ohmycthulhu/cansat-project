@@ -5,7 +5,7 @@
 #include "sensors.cpp"
 #include "md5.hpp"
 #include "commands.cpp"
-#include "xbeeinterface.cpp"
+#include "xbee::.cpp"
 #include "kalman.hpp"
 
 #if IS_CONTROLLER
@@ -69,7 +69,7 @@ namespace test {
         printInterface << "Memory change: " << (currentMemory - getFreeMemory()) << ". Memory left: " << getFreeMemory() << endOfLine;
         printInterface << endOfLine << "*****************************" << endOfLine << endOfLine;
     */
-        xbee::XBeeInterface::listen();
+        xbee::listen();
         sensors::listen();
 
         return true;
@@ -181,7 +181,7 @@ namespace test {
     }
 
     bool testXbee() {
-        xbee::XBeeInterface::initialize();
+        xbee::initialize();
         STRING_TYPE s[] = {
             "First",
             "Second",
@@ -193,7 +193,7 @@ namespace test {
         };
 
         for (int i = 0; i < sizeof(s) / sizeof(STRING_TYPE); i++) {
-            xbee::XBeeInterface::send(s[i], xbee::MessageType::TELEMETRY);
+            xbee::send(s[i], xbee::MessageType::TELEMETRY);
         }
 
         return true;

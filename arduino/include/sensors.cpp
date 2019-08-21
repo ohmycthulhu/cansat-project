@@ -1,7 +1,6 @@
 #ifndef __SENSORS__
 #define __SENSORS__
-
-#include "sensors.hpp"
+#include "sensors.h"
 // #include "test.hpp"
 #if IS_CONTROLLER
 #include <EEPROM.h>

@@ -10,34 +10,26 @@ namespace xbee {
         COMMAND_REPORT
     };
 
-    class XBeeInterface {
-    public:
-        constexpr static int xbeeRX = 6, xbeeTX = 7;
-        constexpr static long listenTimeout = 1000; // micros
-        static long listenStartTime;
-        static STRING_TYPE lastCommand;
-        static bool canUseCommand;
+
+    constexpr static int xbeeRX = 6, xbeeTX = 7;
+    constexpr static long listenTimeout = 1000; // micros
+    long listenStartTime = 0;
+    bool canUseCommand = false;
+    STRING_TYPE lastCommand = "";    
+    static void listen();
+    static void initialize();
+    static void send(const STRING_TYPE& msg, const MessageType& type);
+
+
     #if IS_CONTROLLER
-        static SoftwareSerial * xbeeSerial;
+        SoftwareSerial xbeeSerial(xbee::xbeeRX, xbee::xbeeTX);
     #endif
-        static void setup();
-    public:
-        static void listen();
-        static void initialize();
-        static void send(const STRING_TYPE& msg, const MessageType& type);
 
+    static bool shouldInterrupt(const long& time) {
+        return xbeeSerial.isListening() && (time - listenStartTime > listenTimeout);
+    }
 
-        static bool isListeningXBee() { return xbeeSerial != nullptr && xbeeSerial->isListening(); }
-        static void listenXBee() {
-            listenStartTime = millis();
-            xbeeSerial->listen();
-        }
-        static bool shouldInterrupt(const long& time) {
-            return isListeningXBee() && (time - listenStartTime > listenTimeout);
-        }
-
-        static bool isThereCommand() { return canUseCommand; }
-        static STRING_TYPE getCommand() { canUseCommand = false; return lastCommand; }
-    };
+    static bool isThereCommand() { return canUseCommand; }
+    static STRING_TYPE getCommand() { canUseCommand = false; return lastCommand; }
 
 }

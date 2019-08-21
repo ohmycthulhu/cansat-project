@@ -7,10 +7,10 @@ void makeOneLifecycle () {
   using namespace xbee;
   Commands executedCommand;
   // Check xbee for command
-  if (XBeeInterface::isThereCommand()) {
-    auto command = xbee::XBeeInterface::getCommand();
+  if (xbee::isThereCommand()) {
+    auto command = xbee::getCommand();
     auto status = commands::execute(command, &executedCommand);
-    XBeeInterface::send(String((int)executedCommand) + "," + String((int)status), MessageType::COMMAND_REPORT);
+    xbee::send(String((int)executedCommand) + "," + String((int)status), MessageType::COMMAND_REPORT);
     return;
   }
   // Read data from sensors
@@ -18,21 +18,21 @@ void makeOneLifecycle () {
   // Pass packet to commands
   auto commandStatus = commands::execute(p, &executedCommand);
   if (commandStatus != Statuses::NO_COMMAND) {
-    XBeeInterface::send(String((int)executedCommand) + "," + String((int)commandStatus), xbee::MessageType::COMMAND_REPORT);
+    xbee::send(String((int)executedCommand) + "," + String((int)commandStatus), xbee::MessageType::COMMAND_REPORT);
     return;
   }
   // Send packet
-  // Serial.println(p.toString());
+  Serial.println(p.toString());
   auto parser = sensors::getGPSParser();
-  XBeeInterface::send(p.toString(), xbee::MessageType::TELEMETRY);
+  xbee::send(p.toString(), xbee::MessageType::TELEMETRY);
 }
 
 void setup() {
   // For Debug
-  // Serial.begin(9600);
+  Serial.begin(9600);
   
   sensors::initialize();
-  xbee::XBeeInterface::initialize();
+  xbee::initialize();
 
   sensors::listenGPS();
   
@@ -53,12 +53,12 @@ void smartDelay (long ms) {
         sensors::listen();
         break;
       case 1:
-        if (millis() - lastSwitchTime > xbee::XBeeInterface::listenTimeout) {
+        if (millis() - lastSwitchTime > xbee::listenTimeout) {
           lastSwitchTime = millis();
           state = 0;
           continue;
         }
-        xbee::XBeeInterface::listen();
+        xbee::listen();
         break;
     }
   } while(millis() - start < ms);

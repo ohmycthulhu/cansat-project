@@ -4,6 +4,14 @@
 /*
     This code was stollen from StackOverflow, so please don't change it
  */
+
+unsigned long simple_hash(STRING_TYPE s) {
+    unsigned long result = 0;
+    for (int i = 0; i < s.length(); i++) {
+        result += s[i] * i;
+    }
+    return result;
+}
 #if IS_NOT_CONTROLLER
 
 #include <array>
