@@ -55,13 +55,11 @@ namespace xbee {
                     lastCommand = msg;
                     canUseCommand = true;
                     msg = "";
-                    Serial.println();
+                    break;
                 }
             } else {
-                Serial.println(msg + " (" + String(c) + ")");
                 msg += (char)c;
             }
-            Serial.println("Reading");
         }
     #endif
     }

@@ -11,14 +11,15 @@ namespace xbee {
     };
 
 
-    constexpr static int xbeeRX = 6, xbeeTX = 7;
+//    constexpr static int xbeeRX = 6, xbeeTX = 7;
+    constexpr static int xbeeRX = 7, xbeeTX = 6;
     constexpr static long listenTimeout = 1000; // micros
     long listenStartTime = 0;
     bool canUseCommand = false;
     STRING_TYPE lastCommand = "";    
     static void listen();
     static void initialize();
-    static void send(const STRING_TYPE& msg, const MessageType& type);
+    static void send(const STRING_TYPE& msg, const MessageType& type = MessageType::TELEMETRY);
 
 
     #if IS_CONTROLLER

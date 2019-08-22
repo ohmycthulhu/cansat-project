@@ -15,7 +15,7 @@ namespace sensors {
     /*
         <Pins>
     */
-    constexpr  uint8_t gpsTX = 4, gpsRX = 5;
+    constexpr  uint8_t gpsTX = 4, gpsRX = 3;
     constexpr  uint8_t cameraMode = 2, cameraPower = 8;
     constexpr  uint8_t lightSensor = A1;
     constexpr  uint8_t buzzerPin = 5;
