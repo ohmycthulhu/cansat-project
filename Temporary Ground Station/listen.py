@@ -40,7 +40,7 @@ def parse(s):
     if len(parts) < 2:
         return None
     # Check hash of message
-    if hashlib.md5(str.encode(parts[0])).hexdigest() != parts[1].strip():
+    if str(sum([(i+1) * ord(x[i]) for i in range(len(x))])) != parts[1].strip():
         print('Hash failed')
         return None
 

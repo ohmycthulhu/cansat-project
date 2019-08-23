@@ -41,13 +41,13 @@ except Exception as e:
 s.close()
 
 def sendCommand (command):
-    msg = f"{allCommands[command]}"
-    # msg = f"{allCommands[command]}|{hashlib.md5(str.encode(allCommands[command])).hexdigest()}"
+    msg = f"{allCommands[command]}||\n"
+    # msg = f"{allCommands[command]}|{hashlib.md5(str.encode(allCommands[command])).hexdigest()}\n"
     try:
         # Open serial
         s.open()
         # Send command
-        s.write(str.encode(msg + "\n"))
+        s.write(str.encode(msg))
         # Close serial
         s.close()
     except Exception as e:
