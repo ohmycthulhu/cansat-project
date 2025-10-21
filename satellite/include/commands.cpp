@@ -1,7 +1,6 @@
 #ifndef __COMMANDS__
 #define __COMMANDS__
 #include "commands.hpp"
-#include "md5.hpp"
 #if IS_NOT_CONTROLLER
 #include <iostream>
 #else
@@ -18,15 +17,9 @@ namespace commands {
 
     void reset();
     Commands extractCommand (const STRING_TYPE& s);
-    // bool isHashValid(const STRING_TYPE& s);
     Statuses execute(const Commands& state);
 
     Statuses execute(const STRING_TYPE& s, Commands * executedCommand) {
-        /*
-        if (false && !isHashValid(s)) {
-            return Statuses::HASH_FAILED;
-        }
-        */
         auto command = extractCommand(s);
         if (executedCommand != nullptr) {
             *executedCommand = command;
@@ -45,7 +38,7 @@ namespace commands {
             forceShutUpBuzzer = false;
             sensors::stopBuzzer();
         }
-        return Statuses::NO_COMMAND; // TODO: Write conditions for commands
+        return Statuses::NO_COMMAND;
     }
     Statuses execute(const Commands& state) {
         switch (state)
@@ -79,37 +72,7 @@ namespace commands {
         }
         return Statuses::OK;
     }
-    /*
-        Hash check is `temporary` disabled
-    bool isHashValid(const STRING_TYPE& s) {
-    /*
-        Command string is structured like that: 
-        command_id|payload|hash
-        For checking hash, we're dividing message by last delimiter (|), and getting command_id|payload and hash
-        Then we are calculating hash of first and checking if hashes are equal
-    */
-   /*
-    #if IS_NOT_CONTROLLER
-        auto lastDelimiterIndex = s.find_last_of(delimiter);
-        auto hash = s.substr(lastDelimiterIndex + 1, s.size());
-        auto body = s.substr(0, lastDelimiterIndex);
-        md5 hashGenerator(body.begin(), body.end());
-        return hashGenerator.hex_digest<STRING_TYPE>() == hash;
-    #else
-        auto lastDelimiterIndex = s.lastIndexOf(delimiter);
-        auto hash = s.substring(lastDelimiterIndex + 1, s.length());
-        auto body = s.substring(0, lastDelimiterIndex);
-        
-        unsigned char* h_c = MD5::make_hash(const_cast<char*>(body.c_str()));
-        char* r = MD5::make_digest(h_c, 16);
-        free(h_c);
-        STRING_TYPE h = r;
-        free(r);
 
-        return h == hash;
-    #endif
-    
-    }*/
     Commands extractCommand (const STRING_TYPE& s) {
     /*
         Command string is structured like that: 

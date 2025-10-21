@@ -1,7 +1,6 @@
 #ifndef __PACKET__
 #define __PACKET__
 #include "packet.hpp"
-#include "md5.hpp"
 
 #if IS_NOT_CONTROLLER
 #include <sstream>

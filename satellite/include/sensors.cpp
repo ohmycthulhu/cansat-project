@@ -9,12 +9,8 @@
 #endif
 
 namespace sensors {
-
     void setupSensors() {
     #if IS_CONTROLLER
-    /*
-        This part will be written later
-    */
         if (bme == nullptr) {
             bme = new Adafruit_BME280();
             bme->begin();
@@ -23,7 +19,6 @@ namespace sensors {
         pinMode(cameraMode, OUTPUT);
         pinMode(cameraPower, OUTPUT);
         pinMode(lightSensor, INPUT);
-        // test::printInterface << "BME status is " << status << test::endOfLine;
     #endif
     }
 
@@ -72,13 +67,8 @@ namespace sensors {
             delay(2500);
             digitalWrite(cameraPower, LOW);
             delay(700);
-            /*
-            // Toggling through 2 modes
-            digitalWrite(cameraMode, HIGH);
-            delay(500);
-            digitalWrite(cameraMode, LOW);
-            delay(700); */
-            // No, toggle 1 mode
+
+            // Toggle the camera's mode
             digitalWrite(cameraMode, HIGH);
             delay(500);
             digitalWrite(cameraMode, LOW);
@@ -158,11 +148,11 @@ namespace sensors {
         double longitude = gpsParser.location.lng();
         short satState = analogRead(lightSensor) > 512;
         STRING_TYPE gpsTime =  String(gpsParser.date.day()) + "-" +
-        String(gpsParser.date.month()) + "-" +
-        String(gpsParser.date.year()) + " " +
-        String(gpsParser.time.hour()) + ":" +
-        String(gpsParser.time.minute()) + ":" +
-        String(gpsParser.time.second());
+            String(gpsParser.date.month()) + "-" +
+            String(gpsParser.date.year()) + " " +
+            String(gpsParser.time.hour()) + ":" +
+            String(gpsParser.time.minute()) + ":" +
+            String(gpsParser.time.second());
     #else
         float temp = std::rand() % 300 / 10.0f;
         float pressure = std::rand() % 1000 + 99500;

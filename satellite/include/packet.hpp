@@ -1,9 +1,8 @@
 #include "common.hpp"
 
 class Packet {
-    // Sorry, but I have to declare it as publis to avoid getter methods
 public:
-// Save next id for automatic id recognition
+	// Save next id for automatic id recognition
     static unsigned int nextId;
     unsigned int id;
     float temperature;
@@ -18,7 +17,6 @@ public:
     STRING_TYPE gpsTime;
     short satState;
 
-public:
     Packet (const float temperature, const float pressure, const float voltage,
             const float humidity, const float height, const float speed, const float time,
             const double latitude, const double longitude, STRING_TYPE gpsTime, const short state);
@@ -30,5 +28,4 @@ public:
     Packet (const Packet& p);
 
     STRING_TYPE toString() const;
-
 };

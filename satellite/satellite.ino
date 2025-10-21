@@ -2,29 +2,100 @@
 #include "include/sensors.cpp"
 #include "include/xbeeinterface.cpp"
 
-// Set testing mode on
-#define TEST true
+using namespace commands;
+using namespace xbee;
 
-#ifndef TEST
-#define TEST false
-#endif
+// Set testing mode on
+const bool TESTING_MODE = 1;
+
+void setupTest();
+void loopTest();
 
 void makeOneLifecycle();
 void smartDelay(long ms);
 void beep(long duration, long frequency);
 
 void setup() {
-  // For Debug
-#if TEST
+  if(TESTING_MODE) {
+    setupTest();
+  } else {
+    sensors::initialize();
+    xbee::initialize();
+    sensors::listenGPS();
+  }
+}
+
+void loop() {
+  if(TESTING_MODE) {
+    loopTest();
+    sleep(700);
+  } else {
+    makeOneLifecycle();
+    smartDelay(700);
+  }
+}
+
+void makeOneLifecycle () {
+  Commands executedCommand;
+  if (xbee::isThereCommand()) {
+    auto command = xbee::getCommand();
+    auto status = commands::execute(command, &executedCommand);
+    xbee::send(String((int)executedCommand) + "," + String((int)status), MessageType::COMMAND_REPORT);
+    return;
+  }
+  Packet p = sensors::getPacket();
+  auto commandStatus = commands::execute(p, &executedCommand);
+  if (commandStatus != Statuses::NO_COMMAND) {
+    xbee::send(String((int)executedCommand) + "," + String((int)commandStatus), xbee::MessageType::COMMAND_REPORT);
+    return;
+  }
+  auto parser = sensors::getGPSParser();
+  xbee::send(p.toString(), xbee::MessageType::TELEMETRY);
+}
+
+void smartDelay (long ms) {
+  static unsigned long lastSwitchTime = 0;
+  static unsigned short state = 1;
+  auto start = millis();
+  do {
+    switch(state) {
+      case 0:
+        if (millis() - lastSwitchTime > sensors::listenTimeout) {
+          lastSwitchTime = millis();
+          state = 1;
+          continue;
+        }
+        sensors::listen();
+        break;
+      case 1:
+        if (millis() - lastSwitchTime > xbee::listenTimeout) {
+          lastSwitchTime = millis();
+          state = 0;
+          continue;
+        }
+        xbee::listen();
+        break;
+    }
+  } while(millis() - start < ms);
+}
+
+void beep(long duration, long frequency) {
+  tone(sensors::buzzerPin, frequency);
+  delay(duration);
+  noTone(sensors::buzzerPin);
+  delay(duration);
+}
+
+void setupTest() {
   Serial.begin(9600);
 
   /*
-    Things that needs to be checked: 
+    Things that needs to be checked:
     Buzzer, XBee, BME, Light sensor, voltage divider, GPS, Camera
   */
   /*
     0. Short beep
-    1. Initialize sensors and xbee 
+    1. Initialize sensors and xbee
     2. Send message through xbee
     3. Little longer beep
     3.5 Initialize sensors
@@ -111,29 +182,20 @@ void setup() {
 
   // Step #17
   beep(3000, 1000);
-
-#else
-  sensors::initialize();
-  xbee::initialize();
-
-  sensors::listenGPS();
-  
-#endif
 }
 
-void loop() {  
-#if TEST
+void loopTest() {
   /*
-    1. Listen for 5 second for GPS.
-    2. Send info through XBee.
-    3. Short beep
-    4. Listen for 5 second XBee
-    5. Execute command that got
-    6. Long beep
-  */
- // Steps #1, #2
- {
-   // Listening is written in block, so can be easily deleted from code
+  0. Listen for 5 second for GPS.
+  1. Send info through XBee.
+  2. Short beep
+  3. Listen for 5 second XBee
+  4. Execute command that got
+  5. Long beep
+*/
+  // Steps #0, #1
+  {
+    // Listening is written in block, so can be easily deleted from code
     long start = millis();
     xbee::send("Starting listening GPS");
     while (millis() - start < 5000) {
@@ -142,14 +204,14 @@ void loop() {
     auto p = sensors::getPacket();
     xbee::send("Information got from GPS: " + String(p.latitude) + ", " + String(p.longitude) + ", " + p.gpsTime);
     xbee::send("Finished listening GPS");
- }
+  }
 
- // Step #3
+  // Step #2
   beep(500, 1000);
 
- // Step #4, #5
- {
-   // Listening is written in block, so can be easily deleted from code
+  // Step #3, #4
+  {
+    // Listening is written in block, so can be easily deleted from code
     long start = millis();
     xbee::send("Starting listening XBee");
     while (millis() - start < 5000) {
@@ -161,73 +223,9 @@ void loop() {
       }
     }
     xbee::send("Finished listening XBee");
- }
+  }
 
- // Step #6
+  // Step #5
   beep(2000, 500);
   xbee::send("Finished round");
-
-#else
-
-  makeOneLifecycle();
-  smartDelay(700);
-#endif
-}
-
-void makeOneLifecycle () {
-  using namespace commands;
-  using namespace xbee;
-  Commands executedCommand;
-  // Check xbee for command
-  if (xbee::isThereCommand()) {
-    auto command = xbee::getCommand();
-    auto status = commands::execute(command, &executedCommand);
-    xbee::send(String((int)executedCommand) + "," + String((int)status), MessageType::COMMAND_REPORT);
-    return;
-  // Read data from sensors
-  }
-  Packet p = sensors::getPacket();
-  // Pass packet to commands
-  auto commandStatus = commands::execute(p, &executedCommand);
-  if (commandStatus != Statuses::NO_COMMAND) {
-    xbee::send(String((int)executedCommand) + "," + String((int)commandStatus), xbee::MessageType::COMMAND_REPORT);
-    return;
-  }
-  // Send packet
-  // Serial.println(p.toString());
-  auto parser = sensors::getGPSParser();
-  xbee::send(p.toString(), xbee::MessageType::TELEMETRY);
-}
-
-void smartDelay (long ms) {
-  static unsigned long lastSwitchTime = 0;
-  static unsigned short state = 1;
-  auto start = millis();
-  do {
-    switch(state) {
-      case 0:
-        if (millis() - lastSwitchTime > sensors::listenTimeout) {
-          lastSwitchTime = millis();
-          state = 1;
-          continue;
-        }
-        sensors::listen();
-        break;
-      case 1:
-        if (millis() - lastSwitchTime > xbee::listenTimeout) {
-          lastSwitchTime = millis();
-          state = 0;
-          continue;
-        }
-        xbee::listen();
-        break;
-    }
-  } while(millis() - start < ms);
-}
-
-void beep(long duration, long frequency) {
-  tone(sensors::buzzerPin, frequency);
-  delay(duration);
-  noTone(sensors::buzzerPin);
-  delay(duration);
 }

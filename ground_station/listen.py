@@ -1,21 +1,20 @@
-#!/usr/bin/python3.6
 from serial import Serial
 from sys import argv
 import re
-import hashlib
 from commands import Commands, Statuses
 from time import sleep
 
 regexps = {
     'port': '--port=(.+)',
-    'baudrate': '--baudrate=(.+)',
-    'timeout': '--timeout=(.+)'
+    'baudrate': '--baudrate=(\d+)',
+    'timeout': '--timeout=(\d+)'
 }
 parseResults = {
     'port': '/dev/ttyUSB0',
     'baudrate': '9600',
-    'timeout': 0
+    'timeout': '0'
 }
+
 for arg in argv:
     for key, regex in regexps.items():
         m = re.search(regex, arg)
@@ -23,7 +22,7 @@ for arg in argv:
             parseResults[key] = m.group(1)
 
 
-port, baudrate, timeout = parseResults['port'], parseResults['baudrate'], parseResults['timeout']
+port, baudrate, timeout = parseResults['port'], parseResults['baudrate'], int(parseResults['timeout'])
 print(port, baudrate)
 s = None
 print("Creating serial")
@@ -74,6 +73,7 @@ def parse(s):
             'Voltage': telemetry_parts[11],
             'State': telemetry_parts[12]
         }
+
     if message_parts[0] == '1':
         report_parts = message_parts[1].split(',')
         command = Commands.getCommand(report_parts[0])
@@ -85,8 +85,8 @@ def convertDataToLog(data):
     return f"{data['type']},{','.join([data[key] for key in data if key != 'type' and key != 'type_id'])}\n"
     
 
-log = open('log.txt', 'a')
-rawLog = open('raw_log.txt', 'a')
+log = open('log.txt.example', 'a')
+rawLog = open('raw_log.txt.example', 'a')
 
 savedBuffer = ""
 while True:

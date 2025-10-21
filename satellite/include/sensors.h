@@ -6,10 +6,7 @@
 #include <TinyGPS++.h>
 #endif
 
-/*
-    Sensors were rewritten in C style
-    to reduce program storage usage
-*/
+// Sensors were rewritten in C style to reduce program storage usage
 
 namespace sensors {
     /*
@@ -44,11 +41,13 @@ namespace sensors {
     constexpr  int baseTimeAddress = 0x93;
     float timeBase = 0.0f;
     KalmanFilter<float> kalmanTemp, kalmanPress, kalmanHumidity, kalmanVoltage, kalmanHeight;
-// Default pressure for calculating height depending on pressure difference
+
+	// Default pressure for calculating height depending on pressure difference
     float defaultPressure = 0;
     float prevTime = 0, prevHeight = 0;
     long listenStartTime = 0;
-// Camera information
+
+	// Camera information
     bool isRecording = false;
     bool isPowered = false;
     void setupSensors();

@@ -7,8 +7,7 @@
 #if IS_NOT_CONTROLLER
 #include <iostream>
 #else
-#include "md5.hpp"
-//#include <MD5.h>
+#include "hash.hpp"
 #endif
 
 namespace xbee {
@@ -19,16 +18,10 @@ namespace xbee {
 
     void send(const STRING_TYPE& msg, const MessageType& type) {
     #if IS_CONTROLLER
-        // Send message through xbee if it is controller
+        // Send message through xbee if it is a controller
         STRING_TYPE message = String((int)type) + "/" + msg;
 
         // Generate and concatenate hash
-
-        // unsigned char* hash = MD5::make_hash((char*)message.c_str());
-        // char* r = MD5::make_digest(hash, 16);
-        // free(hash);
-        // message += "|" + String(r);
-        // free(r);
         message += "|" + String(simple_hash(message));
     
         xbeeSerial.println(message);
@@ -50,7 +43,6 @@ namespace xbee {
             int c = xbeeSerial.read();
             if (c == '\n') {
                 // Action on command end
-                // TODO: Change this to command handling
                 if (msg != "") {
                     lastCommand = msg;
                     canUseCommand = true;

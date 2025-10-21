@@ -1,4 +1,3 @@
-#!/usr/bin/python3.6
 from serial import Serial
 from sys import argv
 import re
@@ -17,7 +16,7 @@ regexps = {
 parseResults = {
     'port': '/dev/ttyUSB0',
     'baudrate': '9600',
-    'timeout': 0,
+    'timeout': '0',
     'command': None,
     'times': '1',
     'step': '.5'
@@ -29,7 +28,7 @@ for arg in argv:
             parseResults[key] = m.group(1)
 
 
-port, baudrate, timeout = parseResults['port'], parseResults['baudrate'], parseResults['timeout']
+port, baudrate, timeout = parseResults['port'], parseResults['baudrate'], int(parseResults['timeout'])
 s = None
 try:
     s = Serial(port = port, baudrate = baudrate, timeout = timeout)
@@ -42,24 +41,19 @@ s.close()
 
 def sendCommand (command):
     msg = f"{allCommands[command]}||\n"
-    # msg = f"{allCommands[command]}|{hashlib.md5(str.encode(allCommands[command])).hexdigest()}\n"
     try:
-        # Open serial
         s.open()
-        # Send command
         s.write(str.encode(msg))
-        # Close serial
         s.close()
     except Exception as e:
         print("Couldn't open serial")
         return False
-    # Show send result
+
     print(f"Sended {command} ({allCommands[command]}) as {msg}")
     return True
 
-allCommands = Commands.getCommands()
-command, times, step = parseResults["command"], int(parseResults['times']), float(parseResults['step'])
-if command != None:
+
+def interpretCommand(command, times=1, step=0.5):
     if command not in allCommands:
         print('Inputted command doesn\'t exists')
         print('There is a list of existing commands: ')
@@ -68,31 +62,33 @@ if command != None:
         for c in allCommands:
             print(c)
         print('-'*50)
+        return False
     else:
         for i in range(times):
             print(f"Try #{i}")
             while not sendCommand(command):
                 pass
             sleep(step)
-    exit(1)
+        return True
+
+
+allCommands = Commands.getCommands()
+
+prompt_command = parseResults["command"]
+if prompt_command is not None:
+    res = interpretCommand(
+        command=prompt_command,
+        times=int(parseResults['times']),
+        step=float(parseResults['step'])
+    )
+
+    exit(0 if res else 1)
 
 while True:
-    # Get command
     command = input('>>> ')
-    # Check some important commands
+
     if command == 'quit':
         print("Goodbye")
         break
-    # Check if command exists
-    # If not exists, show all commands
-    if command not in allCommands:
-        print('Inputted command doesn\'t exists')
-        print('There is a list of existing commands: ')
-        print('-'*50)
-        print('quit')
-        for c in allCommands:
-            print(c)
-        print('-'*50)
-        continue
-    while not sendCommand(command):
-        pass
+
+    interpretCommand(command)

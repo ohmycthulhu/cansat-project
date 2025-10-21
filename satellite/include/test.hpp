@@ -4,7 +4,6 @@
 #include "customprint.hpp"
 namespace test {
     bool checkSensors();
-    bool testHash();
     bool testCommands();
     bool testXbee();
     bool test();

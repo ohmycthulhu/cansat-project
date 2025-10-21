@@ -1,9 +1,5 @@
 #include "common.hpp"
 
-// #if IS_CONTROLLER
-// #include <SoftwareSerial.h>
-// #endif
-
 namespace xbee {
     enum class MessageType {
         TELEMETRY,
@@ -11,7 +7,6 @@ namespace xbee {
     };
 
 
-//    constexpr static int xbeeRX = 6, xbeeTX = 7;
     constexpr static int xbeeRX = 7, xbeeTX = 6;
     constexpr static long listenTimeout = 1000; // micros
     long listenStartTime = 0;
