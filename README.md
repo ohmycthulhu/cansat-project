@@ -16,9 +16,6 @@ Bidirectional communication is built for the following purposes:
   satellite.
 
 ```mermaid
----
-title: "Something"
----
 flowchart
     subgraph satellite[Satellite]
         microcontroller["Microcontroller"]
